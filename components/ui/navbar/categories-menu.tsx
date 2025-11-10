@@ -6,27 +6,64 @@ const categoriesData = [
         id: 1,
         name: "Electronics",
         subcategories: [
-            { name: "Smartphones", href: "/" }, { name: "Laptops", href: "/" },
-            { name: "Televisions", href: "/" }, { name: "Cameras", href: "/" },
-            { name: "Audio", href: "/" }, { name: "Gaming", href: "/" },
+            { name: "Smartphones", href: "/" }, 
+            { name: "Laptops", href: "/" },
+            { name: "Televisions", href: "/" }, 
+            { name: "Cameras", href: "/" },
+            { name: "Audio", href: "/" }, 
+            { name: "Gaming", href: "/" },
         ],
     },
     {
         id: 2, 
         name: "Fashion",
         subcategories: [
-            { name: "Men's Clothing", href: "/" }, { name: "Women's Clothing", href: "/" },
-            { name: "Shoes", href: "/" }, { name: "Accessories", href: "/" },
+            { name: "Men's Clothing", href: "/" }, 
+            { name: "Women's Clothing", href: "/" },
+            { name: "Shoes", href: "/" }, 
+            { name: "Accessories", href: "/" },
         ],
     },
     {
         id: 3, 
         name: "Home & Garden",
         subcategories: [
-            { name: "Furniture", href: "/" }, { name: "Kitchen", href: "/" },
-            { name: "Lighting", href: "/" }, { name: "Tools", href: "/" },
+            { name: "Furniture", href: "/" }, 
+            { name: "Kitchen", href: "/" },
+            { name: "Lighting", href: "/" }, 
+            { name: "Tools", href: "/" },
         ],
     },
+    {
+        id: 4, 
+        name: "Sports & Outdoors",
+        subcategories: [
+            { name: "Fitness Equipment", href: "/" }, 
+            { name: "Outdoor Gear", href: "/" },
+            { name: "Cycling", href: "/" },
+            { name: "Team Sports", href: "/" },
+        ],
+    },
+    {
+        id: 5, 
+        name: "Health & Beauty",
+        subcategories: [
+            { name: "Skincare", href: "/" }, 
+            { name: "Makeup", href: "/" },
+            { name: "Haircare", href: "/" },
+            { name: "Vitamins & Supplements", href: "/" },
+        ],
+    },
+    {
+        id: 6, 
+        name: "Toys & Hobbies",
+        subcategories: [
+            { name: "Action Figures", href: "/" }, 
+            { name: "Dolls", href: "/" },
+            { name: "Puzzles", href: "/" },
+            { name: "Model Kits", href: "/" },
+        ],
+    }
 ]
 
 const CategoriesMenu = () => {
