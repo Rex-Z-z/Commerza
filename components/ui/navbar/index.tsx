@@ -17,6 +17,9 @@ const menuItems = [
     { id: 'help', label: 'Help Center', icon: <MessageCircleQuestionMark className='size-4 mr-2' />, align: 'right' },
 ]
 
+const borderBottomStyle = "flex items-center py-5 px-4 text-sm font-medium text-white cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-white after:scale-x-0 after:origin-center after:transition-transform after:duration-300 after:ease-in-out hover:after:scale-x-100"
+const borderBottomLinkStyle = "flex items-center py-5 px-4 text-sm font-medium text-white cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-white after:scale-x-0 after:origin-center after:transition-transform after:duration-300 after:ease-in-out"
+
 // --- Main Component ---
 const NavBar = () => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null)
@@ -68,7 +71,6 @@ const NavBar = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            // Set true if scrolled more than 0 pixels, false otherwise
             setIsScrolled(window.scrollY > 0)
         }
 
@@ -88,14 +90,8 @@ const NavBar = () => {
                     <img src="/picture/logo.png" className="md:h-8 h-6" alt="Commerza Logo" />
                 </a>
 
-                <div className={cn(
-                    "flex flex-row items-center gap-2",
-                    isScrolledPastSearch
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 -translate-y-4 pointer-events-none" 
-                )}>
+                <div className={cn( "flex flex-row items-center gap-2", isScrolledPastSearch ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")}>
                     <SearchBar className="md:w-lg w-[200px]" /> 
-                    
                     <Button variant="secondary" size="lg" className="text-sm py-5 border text-gray-500 border-gray-300 dark:border-gray-700">
                         <MapPin className='size-4'/> Location
                     </Button>
@@ -113,14 +109,7 @@ const NavBar = () => {
             
             {/* Bottom Section */}
             <div 
-                onMouseLeave={handleTriggerLeave}
-                className={cn(
-                    "transition-all duration-300 ease-in-out overflow-hidden",
-                    isScrolled
-                        ? "max-h-0 opacity-0"
-                        : "max-h-20 opacity-100"
-                )}
-            >
+                onMouseLeave={handleTriggerLeave} className={cn( "transition-all duration-300 ease-in-out overflow-hidden", isScrolled ? "max-h-0 opacity-0" : "max-h-20 opacity-100")}>
                 <div className="flex items-center justify-between w-full">
                     {/* Left-aligned triggers */}
                     <div className="flex items-center">
@@ -130,15 +119,7 @@ const NavBar = () => {
                                     key={item.id}
                                     href={item.href}
                                     onMouseEnter={handleLinkEnter}
-                                    className={cn(
-                                        "flex items-center py-5 px-4 text-sm font-medium text-white cursor-pointer",
-                                        "relative", // For the border animation
-                                        "after:content-[''] after:absolute after:bottom-0 after:left-0",
-                                        "after:h-px after:w-full after:bg-white",
-                                        "after:scale-x-0 after:origin-center",
-                                        "after:transition-transform after:duration-300 after:ease-in-out",
-                                        "hover:after:scale-x-100" // Animate border on hover for links
-                                    )}
+                                    className={cn(borderBottomStyle)}
                                 >
                                     {item.icon} {item.label}
                                 </a>
@@ -146,15 +127,7 @@ const NavBar = () => {
                                 <div
                                     key={item.id}
                                     onMouseEnter={() => handleTriggerEnter(item.id)}
-                                    className={cn(
-                                        "flex items-center py-5 px-4 text-sm font-medium text-white cursor-pointer",
-                                        "relative", // For the border animation
-                                        "after:content-[''] after:absolute after:bottom-0 after:left-0",
-                                        "after:h-px after:w-full after:bg-white",
-                                        "after:scale-x-0 after:origin-center",
-                                        "after:transition-transform after:duration-300 after:ease-in-out",
-                                        activeMenuId === item.id && "after:scale-x-100" // Animate border when active
-                                    )}
+                                    className={cn(borderBottomLinkStyle, activeMenuId === item.id && "after:scale-x-100")}
                                 >
                                     {item.icon} {item.label}
                                 </div>
@@ -170,15 +143,7 @@ const NavBar = () => {
                                     key={item.id}
                                     href={item.href}
                                     onMouseEnter={handleLinkEnter}
-                                    className={cn(
-                                        "flex items-center py-5 px-4 text-sm font-medium text-white cursor-pointer",
-                                        "relative", // For the border animation
-                                        "after:content-[''] after:absolute after:bottom-0 after:left-0",
-                                        "after:h-px after:w-full after:bg-white",
-                                        "after:scale-x-0 after:origin-center",
-                                        "after:transition-transform after:duration-300 after:ease-in-out",
-                                        "hover:after:scale-x-100" // Animate border on hover for links
-                                    )}
+                                    className={cn(borderBottomStyle)}
                                 >
                                     {item.icon} {item.label}
                                 </a>
@@ -186,15 +151,7 @@ const NavBar = () => {
                                 <div
                                     key={item.id}
                                     onMouseEnter={() => handleTriggerEnter(item.id)}
-                                    className={cn(
-                                        "flex items-center py-5 px-4 text-sm font-medium text-white cursor-pointer",
-                                        "relative", // For the border animation
-                                        "after:content-[''] after:absolute after:bottom-0 after:left-0",
-                                        "after:h-px after:w-full after:bg-white",
-                                        "after:scale-x-0 after:origin-center",
-                                        "after:transition-transform after:duration-300 after:ease-in-out",
-                                        activeMenuId === item.id && "after:scale-x-100" // Animate border when active
-                                    )}
+                                    className={cn(borderBottomLinkStyle, activeMenuId === item.id && "after:scale-x-100")}
                                 >
                                     {item.icon} {item.label}
                                 </div>
@@ -217,7 +174,6 @@ const NavBar = () => {
                     <div className="w-full relative h-[220px] overflow-hidden">
                         
                         {menuItems.map((item, index) => {
-                            // If it's a link, it doesn't have dropdown content, so skip
                             if (item.href) return null; 
 
                             const MenuContent = menuContentMap[item.id];
@@ -237,13 +193,7 @@ const NavBar = () => {
                             }
 
                             return (
-                                <div
-                                    key={item.id}
-                                    className={cn(
-                                        "absolute top-0 left-0 w-full transition-all duration-300 ease-in-out",
-                                        positionClasses
-                                    )}
-                                >
+                                <div key={item.id} className={cn( "absolute top-0 left-0 w-full transition-all duration-300 ease-in-out", positionClasses )}>
                                     <MenuContent />
                                 </div>
                             );
