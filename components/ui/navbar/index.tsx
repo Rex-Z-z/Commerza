@@ -1,12 +1,13 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from 'react'
+import { cn } from '@/lib/utils'
 import CategoriesMenu from './categories-menu'
 import MarketPlace from './market-place'
-import { Search, Camera, MapPin, Store, ShoppingBasket, MessageCircleQuestionMark, Menu } from "lucide-react"
+import HelpCenter from './help-center'
+import { MapPin, Store, ShoppingBasket, MessageCircleQuestionMark, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from '../separator'
-import { cn } from '@/lib/utils'
 import { useScroll } from '@/app/context/scroll-context' 
 import { SearchBar } from '@/components/ui/search-bar'
 
@@ -58,7 +59,7 @@ const NavBar = () => {
     const menuContentMap: { [key: string]: React.ComponentType } = {
         categories: CategoriesMenu,
         marketplace: MarketPlace,
-        help: () => <div className='w-full p-4 bg-white rounded-md text-gray-900 shadow-md'><div className='max-w-7xl mx-auto'>Help Content</div></div>,
+        help: HelpCenter,
     }
 
     const handleLinkEnter = () => {
@@ -83,28 +84,32 @@ const NavBar = () => {
 
     // --- Main Render ---
     return (
-        <div className="flex flex-col bg-[#35B9EC] border-b border-gray-200 shadow-sm sticky top-0 z-20">
+        <div className={cn(`flex flex-col bg-[#35B9EC] border-b border-transparent sticky top-0 z-20`, isScrolled ? "shadow-md" : "")}>
             {/* Top Section */}
-            <div className="px-4 py-3 flex items-center justify-between">
+            <div className="px-4 py-4 flex items-center justify-between">
                 <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
                     <img src="/picture/logo.png" className="md:h-8 h-6" alt="Commerza Logo" />
                 </a>
 
                 <div className={cn( "flex flex-row items-center gap-2", isScrolledPastSearch ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")}>
                     <SearchBar className="md:w-lg w-[200px]" /> 
-                    <Button variant="secondary" size="lg" className="text-sm py-5 border text-gray-500 border-gray-300 dark:border-gray-700">
+                    <Button variant="secondary" size="lg" className="rounded-full hover:text-primary/90 hover:bg-gray-100">
                         <MapPin className='size-4'/> Location
                     </Button>
                 </div>
 
                 <div className='flex flex-row items-center gap-2'>
-                    <Button variant="ghost" size="lg" className="text-sm py-5 text-white hover:text-white hover:bg-accent/20"> Sign Up </Button>
-                    <Button variant="secondary" size="lg" className="text-sm py-5 hover:bg-gray-200"> Login </Button>
+                    <Button variant="ghost" size="lg" className="text-white hover:text-white hover:bg-accent/20" asChild> 
+                        <a href="/signup"> Sign Up </a>
+                    </Button>
+                    <Button variant="secondary" size="lg" className="hover:text-primary/90 hover:bg-gray-100" asChild> 
+                        <a href="/login"> Login </a>
+                    </Button>
                 </div>
             </div>
 
-            <div className='px-4'>
-                <Separator className="bg-[#139ED3] mt-2"/>
+            <div className={`px-4 ${isScrolled ? "opacity-0 -translate-y-4" : "opacity-100 translate-y-0"}`} >
+                <Separator className="bg-[#139ED3]" />
             </div>
             
             {/* Bottom Section */}
@@ -162,16 +167,11 @@ const NavBar = () => {
 
                 {/* --- Full-Width Animated Dropdown Container --- */}
                 <div
-                    className={cn(
-                        "absolute left-0 top-full w-full pt-1.5 transition-all duration-300 ease-in-out",
-                        activeIndex !== null
-                            ? "opacity-100 translate-y-0"
-                            : "opacity-0 -translate-y-4 pointer-events-none"
-                    )}
+                    className={cn( "absolute left-0 top-full w-full transition-all duration-300 ease-in-out", activeIndex !== null ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none" )}
                     onMouseEnter={handleDropdownEnter}
                     onMouseLeave={handleDropdownLeave}
                 >
-                    <div className="w-full relative h-[220px] overflow-hidden">
+                    <div className="w-full relative h-[300px] overflow-hidden">
                         
                         {menuItems.map((item, index) => {
                             if (item.href) return null; 

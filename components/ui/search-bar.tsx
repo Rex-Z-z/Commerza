@@ -30,7 +30,7 @@ export const SearchBar = ({ className, page = 'navbar' }: { className?: string; 
                     </div>
                 </>
             ) : (
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-row gap-2">
                     <div className="relative w-4/5">
                         <input
                         type="text"
@@ -45,7 +45,7 @@ export const SearchBar = ({ className, page = 'navbar' }: { className?: string; 
                             </div>
                         </div>
                     </div>
-                    <Button variant="secondary" size="icon" className='rounded-full text-gray-500 px-20 py-7'>   
+                    <Button variant="secondary" size="lg" className='rounded-full px-20 py-7 hover:bg-gray-200 hover:text-primary/90'>   
                         <Camera className='size-5'/> Image Search
                     </Button>
                 </div>

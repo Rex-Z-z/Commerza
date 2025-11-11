@@ -71,9 +71,9 @@ const CategoriesMenu = () => {
     
     return (
         <div className="w-full p-2 bg-white shadow-md">
-            <div className="flex w-full max-w-7xl mx-auto h-[200px] gap-1">
+            <div className="flex w-full h-[300px] px-5 gap-1">
                 {/* Left Column */}
-                <div className="w-1/5 pr-2 overflow-y-auto custom-scrollbar">
+                <div className="w-2/6 pr-2 overflow-y-auto custom-scrollbar">
                     <ul className="flex flex-col space-y-1">
                         {categoriesData.map((category) => (
                             <li key={category.id}>
@@ -93,9 +93,9 @@ const CategoriesMenu = () => {
                 </div>
 
                 {/* Right Column */}
-                <div className="w-4/5 pl-2 border-l border-gray-200 overflow-y-auto custom-scrollbar">
+                <div className="w-4/6 pl-2 border-l border-gray-200 overflow-y-auto custom-scrollbar">
                     <h3 className="text-lg font-semibold mb-2 text-gray-900">{activeCategory.name}</h3>
-                    <div className="grid grid-cols-2 gap-x-2 gap-y-2">
+                    <div className="grid grid-cols-4 gap-x-2 gap-y-2">
                         {activeCategory.subcategories.map((sub) => (
                             <a
                                 key={sub.name}
