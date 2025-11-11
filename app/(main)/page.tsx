@@ -3,6 +3,18 @@
 import React from 'react'
 import { useScroll } from '../context/scroll-context'
 import { SearchBar } from '@/components/ui/search-bar'
+import MainCarousel from './components/main-carousel'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import FlashsaleCarousel from './components/flashsale-carousel'
+import BestsaleCarousel from './components/bestsale-carousel'
 
 const frequentlySearched = ['Electronics', 'Books', 'Clothing', 'Home Appliances', 'Toys', 'Sports Equipment']
 
@@ -10,7 +22,7 @@ const Page = () => {
   const { searchBarRef } = useScroll()
 
   return (
-    <div>
+    <div className='bg-gray-50'>
       <div ref={searchBarRef} className="flex flex-col justify-center items-center py-6 bg-primary gap-3" >
         <SearchBar className="md:w-4xl w-11/12" page='landing'/>
         <div className='w-4xl flex flex-row justify-start gap-3'>
@@ -24,10 +36,20 @@ const Page = () => {
           </p>
         </div>
       </div>
+      
+      {/* Carousel Section */}
+      <div className="pt-10 pb-4 px-10">
+        <MainCarousel />
+      </div>
+      
+      {/* Flash Sale */}
+      <div className="py-3 px-10">
+        <FlashsaleCarousel />
+      </div>
 
-      <div className="h-[200vh] bg-gray-50 p-8">
-        <h2 className="text-2xl font-bold">Scroll down</h2>
-        <p>As you scroll past the search bar above, the search bar in the sticky navbar will appear.</p>
+      {/* Best Sale */}
+      <div className="py-3 px-10">
+        <BestsaleCarousel />
       </div>
     </div>
   )
