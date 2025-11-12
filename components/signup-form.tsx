@@ -27,6 +27,18 @@ export function SignupForm({
                 </p>
               </div>
               <Field>
+                <Field className="grid grid-cols-2 gap-4">
+                  <Field>
+                    <FieldLabel htmlFor="password"> First name </FieldLabel>
+                    <Input id="password" type="password" required />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="confirm-password"> Last name </FieldLabel>
+                    <Input id="confirm-password" type="password" required />
+                  </Field>
+                </Field>
+              </Field>
+              <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
@@ -34,10 +46,10 @@ export function SignupForm({
                   placeholder="m@example.com"
                   required
                 />
-                <FieldDescription>
+                {/* <FieldDescription className="text-xs text-gray-400">
                   We&apos;ll use this to contact you. We will not share your
                   email with anyone else.
-                </FieldDescription>
+                </FieldDescription> */}
               </Field>
               <Field>
                 <Field className="grid grid-cols-2 gap-4">
@@ -52,7 +64,7 @@ export function SignupForm({
                     <Input id="confirm-password" type="password" required />
                   </Field>
                 </Field>
-                <FieldDescription>
+                <FieldDescription className="text-xs text-gray-400">
                   Must be at least 8 characters long.
                 </FieldDescription>
               </Field>
