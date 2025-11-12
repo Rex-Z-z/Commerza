@@ -18,7 +18,7 @@ export function SignupForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <div className="p-6 md:p-8">
             <Tabs defaultValue="user" className="w-full">
               <TabsList className="mb-6 grid w-full h-10 grid-cols-2">
                 <TabsTrigger value="user" className="cursor-pointer">User</TabsTrigger>
@@ -33,7 +33,9 @@ export function SignupForm({
                 <SignupCompany />
               </TabsContent>
             </Tabs>
-          </form>
+          </div>
+          
+          {/* Photo */}
           <div className="bg-muted relative hidden md:block">
             <img
               src="https://ui.shadcn.com/placeholder.svg"
