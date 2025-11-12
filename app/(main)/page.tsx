@@ -4,15 +4,6 @@ import React from 'react'
 import { useScroll } from '../context/scroll-context'
 import { SearchBar } from '@/components/ui/search-bar'
 import MainCarousel from './components/main-carousel'
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import FlashsaleCarousel from './components/flashsale-carousel'
 import BestsaleCarousel from './components/bestsale-carousel'
 
@@ -38,17 +29,17 @@ const Page = () => {
       </div>
       
       {/* Carousel Section */}
-      <div className="pt-10 pb-4 px-10">
+      <div className="pt-10 pb-4 px-6">
         <MainCarousel />
       </div>
       
       {/* Flash Sale */}
-      <div className="py-3 px-10">
+      <div className="py-3.5 px-6">
         <FlashsaleCarousel />
       </div>
 
       {/* Best Sale */}
-      <div className="py-3 px-10">
+      <div className="py-3.5 px-6">
         <BestsaleCarousel />
       </div>
     </div>

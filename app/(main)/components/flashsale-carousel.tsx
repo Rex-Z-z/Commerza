@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 
 const FlashsaleCarousel = () => {
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
             <div className="flex flex-row justify-between items-center">
                 <h2 className="text-2xl font-semibold">Flash Sale</h2>
                 <Button variant="link" asChild>
