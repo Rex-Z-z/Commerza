@@ -52,11 +52,16 @@ const Verification = ({ onPrevStep }: UserProps) => {
         
             {/* Button */}
             <Field>
-                <Button type="submit">Verify</Button>
+                <div className="flex flex-row justify-between gap-2">
+                    <Button variant="outline" type="submit" className='w-[49%]' onClick={handlePrevStep}>Back</Button>
+                    <Button type="submit" className='w-[49%]'>Verify</Button>
+                </div>
                 <FieldDescription className="text-center">
                     Didn&apos;t receive the code? <a href="#">Resend</a>
                 </FieldDescription>
             </Field>
+
+            
         </FieldGroup>
     )
 }
