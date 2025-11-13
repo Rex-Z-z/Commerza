@@ -1,6 +1,10 @@
+'use client'
+
+import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Eye, EyeClosed } from 'lucide-react';
 import {
   Field,
   FieldDescription,
@@ -8,12 +12,23 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+import { Input, InputWrapper } from "@/components/ui/input"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+      setShowPassword((prev) => !prev);
+  }
+
+  const toggleConfirmPasswordVisibility = () => {
+      setShowConfirmPassword((prev) => !prev);
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
@@ -26,6 +41,8 @@ export function LoginForm({
                   Login to your Acme Inc account
                 </p>
               </div>
+
+              {/* Email */}
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
@@ -35,6 +52,8 @@ export function LoginForm({
                   required
                 />
               </Field>
+
+              {/* Password */}
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
@@ -45,14 +64,35 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <InputWrapper>
+                  <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
+                      required
+                  />
+                  <Button 
+                      type="button"
+                      variant="ghost" 
+                      size='icon' 
+                      className='hover:bg-transparent -me-3.5 text-muted-foreground hover:text-foreground'
+                      onClick={togglePasswordVisibility}
+                  >
+                      {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+                  </Button>
+                </InputWrapper>
               </Field>
+
+              {/* Login button */}
               <Field>
                 <Button type="submit">Login</Button>
               </Field>
+
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Or continue with
               </FieldSeparator>
+              
+              {/* Socials */}
               <Field className="grid grid-cols-3 gap-4">
                 <Button variant="outline" type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

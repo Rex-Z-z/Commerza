@@ -1,5 +1,8 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
+import { Eye, EyeClosed } from 'lucide-react';
 import {
   Field,
   FieldDescription,
@@ -7,15 +10,26 @@ import {
   FieldLabel,
   FieldSeparator,
 } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+import { Input, InputWrapper } from "@/components/ui/input"
 
 const SignupCompany = () => {
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev);
+    }
+
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword((prev) => !prev);
+    }
+    
     return (
         <FieldGroup>
             <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Create your company</h1>
                 <p className="text-muted-foreground text-sm text-balance">
-                    Enter your email below to create your account
+                    Enter your email below to create your company
                 </p>
             </div>
 
@@ -27,8 +41,8 @@ const SignupCompany = () => {
             
             {/* Email */}
             <Field>
-                <FieldLabel htmlFor="email">Company Email</FieldLabel>
-                <Input id="email" type="email" placeholder="m@example.com" required />
+                <FieldLabel htmlFor="email">Company email</FieldLabel>
+                <Input id="email" type="email" placeholder="company@example.com" required />
             </Field>
 
             {/* Password */}
@@ -36,16 +50,47 @@ const SignupCompany = () => {
                 <Field className="grid grid-cols-2 gap-4">
                     <Field>
                         <FieldLabel htmlFor="password">Password</FieldLabel>
-                        <Input id="password" type="password" placeholder="••••••••" required />
+                        <InputWrapper>
+                            <Input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                placeholder="••••••••"
+                                required
+                            />
+                            <Button 
+                                type="button"
+                                variant="ghost" 
+                                size='icon' 
+                                className='hover:bg-transparent -me-3.5 text-muted-foreground hover:text-foreground'
+                                onClick={togglePasswordVisibility}
+                            >
+                                {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+                            </Button>
+                        </InputWrapper>
                     </Field>
                     <Field>
                         <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
-                        <Input id="confirm-password" type="password" placeholder="••••••••" required />
+                        <InputWrapper>
+                            <Input
+                                id="confirm-password"
+                                type={showConfirmPassword ? "text" : "password"}
+                                placeholder="••••••••"
+                                required
+                            />
+                            <Button 
+                                type="button"
+                                variant="ghost" 
+                                size='icon' 
+                                className='hover:bg-transparent -me-3.5 text-muted-foreground hover:text-foreground'
+                                onClick={toggleConfirmPasswordVisibility}
+                            >
+                                {showConfirmPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+                            </Button>
+                        </InputWrapper>
                     </Field>
                 </Field>
-                
                 <FieldDescription className="text-xs text-gray-400">
-                    Must be at least 8 characters long.
+                    "Must be at least 8 characters long, start with an uppercase letter, and include a number."
                 </FieldDescription>
             </Field>
             
