@@ -71,7 +71,7 @@ const CategoriesMenu = () => {
     
     return (
         <div className="w-full p-2 bg-white shadow-md">
-            <div className="flex w-full h-[300px] px-5 gap-1">
+            <div className="flex w-full h-[250px] px-5 gap-1">
                 {/* Left Column */}
                 <div className="w-2/6 pr-2 overflow-y-auto custom-scrollbar">
                     <ul className="flex flex-col space-y-1">
