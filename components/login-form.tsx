@@ -4,36 +4,83 @@ import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Eye, EyeClosed } from 'lucide-react';
+import { Eye, EyeClosed, LoaderCircleIcon } from 'lucide-react';
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
+  FieldError,
 } from "@/components/ui/field"
 import { Input, InputWrapper } from "@/components/ui/input"
+import { useRouter } from "next/navigation";
+
+type ErrorState = {
+  email?: string;
+  password?: string;
+  general?: string;
+}
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<ErrorState>({});
+  
+  const router = useRouter();
 
   const togglePasswordVisibility = () => {
       setShowPassword((prev) => !prev);
   }
 
-  const toggleConfirmPasswordVisibility = () => {
-      setShowConfirmPassword((prev) => !prev);
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors({});
+
+    // Get form data
+    const form = e.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    // Simulate API call
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+
+      // --- SIMULATE A FAILED LOGIN ---
+      // Change this to `true` to test the success case
+      const simulateError = false; 
+
+      if (simulateError || email !== "test@example.com" || password !== "Password123") {
+        const errorData = { 
+            field: "general", 
+            message: "Invalid email or password. Please try again." 
+        };
+        
+        setErrors({ general: errorData.message });
+        throw new Error(errorData.message);
+      }
+      
+      // --- SIMULATE A SUCCESSFUL LOGIN ---
+      console.log("Login successful!");
+      router.push("/");
+
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <form className="p-6 md:p-8" onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -47,10 +94,13 @@ export function LoginForm({
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
+                  name="email" // Add name attribute
                   type="email"
                   placeholder="m@example.com"
                   required
+                  aria-invalid={!!errors.email || !!errors.general}
                 />
+                {errors.email && <FieldError>{errors.email}</FieldError>}
               </Field>
 
               {/* Password */}
@@ -59,7 +109,7 @@ export function LoginForm({
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <a
                     href="#"
-                    className="ml-auto text-sm underline-offset-2 hover:underline"
+                    className="ml-auto text-sm underline-offset-2 hover:underline text-gray-500"
                   >
                     Forgot your password?
                   </a>
@@ -67,9 +117,11 @@ export function LoginForm({
                 <InputWrapper>
                   <Input
                       id="password"
+                      name="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
                       required
+                      aria-invalid={!!errors.password || !!errors.general}
                   />
                   <Button 
                       type="button"
@@ -81,11 +133,18 @@ export function LoginForm({
                       {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
                   </Button>
                 </InputWrapper>
+                {errors.password && <FieldError>{errors.password}</FieldError>}
               </Field>
 
               {/* Login button */}
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit" disabled={isLoading}>
+                    {isLoading ? <LoaderCircleIcon className="animate-spin size-4" /> : null}
+                    {isLoading ? 'Logging in...' : 'Login'}
+                </Button>
+                {errors.general && (
+                    <FieldError className="text-center">{errors.general}</FieldError>
+                )}
               </Field>
 
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">

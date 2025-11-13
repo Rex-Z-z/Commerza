@@ -1,20 +1,34 @@
 'use client'
 
 import { useState } from 'react';
-import { Button } from "@/components/ui/button"
-import { Eye, EyeClosed } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Eye, EyeClosed, LoaderCircleIcon } from 'lucide-react'; // Import loading icon
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "../ui/field"
-import { Input, InputWrapper } from "@/components/ui/input"
+  FieldError, // 1. Import FieldError
+} from "../ui/field";
+import { Input, InputWrapper } from "@/components/ui/input";
+import { useRouter } from 'next/navigation';
+
+// Define a type for your error state
+type ErrorState = {
+  email?: string;
+  password?: string;
+  general?: string; // For any other errors
+}
 
 const SignupUser = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [email, setEmail] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState<ErrorState>({});
+    
+    const router = useRouter();
 
     const togglePasswordVisibility = () => {
         setShowPassword((prev) => !prev);
@@ -24,8 +38,71 @@ const SignupUser = () => {
         setShowConfirmPassword((prev) => !prev);
     }
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setErrors({});
+
+        // Get all form data
+        const form = e.currentTarget as HTMLFormElement;
+        const formData = new FormData(form);
+        const firstName = formData.get('first-name');
+        const lastName = formData.get('last-name');
+        const password = formData.get('password');
+        const confirmPassword = formData.get('confirm-password');
+
+        if (password !== confirmPassword) {
+            setErrors({ password: "Passwords do not match." });
+            setIsLoading(false);
+            return;
+        }
+
+        // --- Handle API call and errors ---
+        try {
+            // --- This is a conceptual example ---
+            // const response = await fetch('/api/signup', {
+            //     method: 'POST',
+            //     body: JSON.stringify({ email, password, firstName, lastName })
+            // });
+
+            // --- Simulate a failed API response for demonstration ---
+            // Remove this block when you have your real API
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+            const response = { 
+                ok: true,
+                json: async () => ({ 
+                    // This is what your API might return
+                    field: "email", 
+                    message: "This email address is already in use." 
+                })
+            };
+            // --- End of simulation block ---
+
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                
+                if (errorData.field === 'email') {
+                    setErrors({ email: errorData.message });
+                } else if (errorData.field === 'password') {
+                    setErrors({ password: errorData.message });
+                } else {
+                    setErrors({ general: errorData.message || "An unknown error occurred." });
+                }
+                
+                throw new Error(errorData.message || 'Failed to create account');
+            }
+            
+            router.push(`/verify?email=${encodeURIComponent(email)}`);
+
+        } catch (error) {
+            console.error(error);
+            setIsLoading(false);
+        }
+    };
+
     return (
-        <form>
+        <form onSubmit={handleSubmit}>
             <FieldGroup>
                 <div className="flex flex-col items-center gap-2 text-center">
                     <h1 className="text-2xl font-bold">Create your account</h1>
@@ -40,7 +117,8 @@ const SignupUser = () => {
                         <Field>
                             <FieldLabel htmlFor="first-name"> First name </FieldLabel>
                             <Input 
-                                id="first-name" 
+                                id="first-name"
+                                name="first-name"
                                 type="text" 
                                 placeholder="First name" 
                                 required 
@@ -49,7 +127,8 @@ const SignupUser = () => {
                         <Field>
                             <FieldLabel htmlFor="last-name"> Last name </FieldLabel>
                             <Input 
-                                id="last-name" 
+                                id="last-name"
+                                name="last-name"
                                 type="text" 
                                 placeholder="Last name" 
                                 required 
@@ -61,7 +140,24 @@ const SignupUser = () => {
                 {/* Email */}
                 <Field>
                     <FieldLabel htmlFor="email">Email</FieldLabel>
-                    <Input id="email" type="email" placeholder="m@example.com" required />
+                    <Input 
+                        id="email" 
+                        name="email"
+                        type="email" 
+                        placeholder="user@example.com" 
+                        required 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        aria-invalid={!!errors.email}
+                    />
+                    
+                    {errors.email ? (
+                        <FieldError className='text-xs'>{errors.email}</FieldError>
+                    ) : (
+                        <FieldDescription className="text-xs text-gray-400">
+                            Enter your email address
+                        </FieldDescription>
+                    )}
                 </Field>
             
                 {/* Password */}
@@ -72,9 +168,11 @@ const SignupUser = () => {
                             <InputWrapper>
                                 <Input
                                     id="password"
+                                    name="password" // Add name attribute
                                     type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
                                     required
+                                    aria-invalid={!!errors.password}
                                 />
                                 <Button 
                                     type="button"
@@ -92,9 +190,11 @@ const SignupUser = () => {
                             <InputWrapper>
                                 <Input
                                     id="confirm-password"
+                                    name="confirm-password"
                                     type={showConfirmPassword ? "text" : "password"}
                                     placeholder="••••••••"
                                     required
+                                    aria-invalid={!!errors.password}
                                 />
                                 <Button 
                                     type="button"
@@ -108,21 +208,32 @@ const SignupUser = () => {
                             </InputWrapper>
                         </Field>
                     </Field>
-                    <FieldDescription className="text-xs text-gray-400">
-                        "Must be at least 8 characters long, start with an uppercase letter, and include a number."
-                    </FieldDescription>
+                    
+                    {errors.password ? (
+                        <FieldError className='text-xs'>{errors.password}</FieldError>
+                    ) : (
+                        <FieldDescription className="text-xs text-gray-400">
+                            Must be at least 8 characters long.
+                        </FieldDescription>
+                    )}
                 </Field>
             
                 {/* Button */}
                 <Field>
-                    <Button type="submit">
-                        <a href="/verify">Create Account</a>
+                    <Button type="submit" disabled={isLoading}>
+                        {isLoading ? <LoaderCircleIcon className="animate-spin size-4" /> : null}
+                        {isLoading ? 'Creating Account...' : 'Create Account'}
                     </Button>
+                    {/* 6. Show general errors here */}
+                    {errors.general && (
+                        <FieldError className="text-center">{errors.general}</FieldError>
+                    )}
                 </Field>
             
                 <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                     Or continue with
                 </FieldSeparator>
+                
                 {/* Socials */}
                 <Field className="grid grid-cols-3 gap-4">
                     <Button variant="outline" type="button">
