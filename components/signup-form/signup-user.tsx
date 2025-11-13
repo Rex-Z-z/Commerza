@@ -2,23 +2,22 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Eye, EyeClosed, LoaderCircleIcon } from 'lucide-react'; // Import loading icon
+import { Eye, EyeClosed, LoaderCircleIcon } from 'lucide-react';
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-  FieldError, // 1. Import FieldError
+  FieldError,
 } from "../ui/field";
 import { Input, InputWrapper } from "@/components/ui/input";
 import { useRouter } from 'next/navigation';
 
-// Define a type for your error state
 type ErrorState = {
   email?: string;
   password?: string;
-  general?: string; // For any other errors
+  general?: string;
 }
 
 const SignupUser = () => {
@@ -40,38 +39,44 @@ const SignupUser = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
         setErrors({});
 
-        // Get all form data
         const form = e.currentTarget as HTMLFormElement;
         const formData = new FormData(form);
         const firstName = formData.get('first-name');
         const lastName = formData.get('last-name');
-        const password = formData.get('password');
-        const confirmPassword = formData.get('confirm-password');
+        const password = String(formData.get('password') || ''); // Get as string
+        const confirmPassword = String(formData.get('confirm-password') || ''); // Get as string
 
         if (password !== confirmPassword) {
             setErrors({ password: "Passwords do not match." });
-            setIsLoading(false);
             return;
         }
 
-        // --- Handle API call and errors ---
-        try {
-            // --- This is a conceptual example ---
-            // const response = await fetch('/api/signup', {
-            //     method: 'POST',
-            //     body: JSON.stringify({ email, password, firstName, lastName })
-            // });
+        const passwordErrors: string[] = [];
+        if (password.length < 8) {
+            passwordErrors.push("Must be at least 8 characters long.");
+        }
+        if (!/^[A-Z]/.test(password)) {
+            passwordErrors.push("Must start with an uppercase letter.");
+        }
+        if (!/\d/.test(password)) {
+            passwordErrors.push("Must include a number.");
+        }
 
+        if (passwordErrors.length > 0) {
+            setErrors({ password: passwordErrors.join(" ") });
+            return;
+        }
+        setIsLoading(true);
+
+        try {
+            // ...
             // --- Simulate a failed API response for demonstration ---
-            // Remove this block when you have your real API
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
             const response = { 
-                ok: true,
+                ok: false, // Changed to false to test error case
                 json: async () => ({ 
-                    // This is what your API might return
                     field: "email", 
                     message: "This email address is already in use." 
                 })
@@ -168,7 +173,7 @@ const SignupUser = () => {
                             <InputWrapper>
                                 <Input
                                     id="password"
-                                    name="password" // Add name attribute
+                                    name="password"
                                     type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
                                     required
@@ -213,7 +218,7 @@ const SignupUser = () => {
                         <FieldError className='text-xs'>{errors.password}</FieldError>
                     ) : (
                         <FieldDescription className="text-xs text-gray-400">
-                            Must be at least 8 characters long.
+                            Must be at least 8 characters long, start with an uppercase letter, and include a number.
                         </FieldDescription>
                     )}
                 </Field>
@@ -224,7 +229,6 @@ const SignupUser = () => {
                         {isLoading ? <LoaderCircleIcon className="animate-spin size-4" /> : null}
                         {isLoading ? 'Creating Account...' : 'Create Account'}
                     </Button>
-                    {/* 6. Show general errors here */}
                     {errors.general && (
                         <FieldError className="text-center">{errors.general}</FieldError>
                     )}
