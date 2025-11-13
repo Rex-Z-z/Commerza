@@ -13,7 +13,13 @@ import {
   FieldSeparator,
   FieldError,
 } from "@/components/ui/field"
-import { Input, InputWrapper } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation";
 
 type ErrorState = {
@@ -114,8 +120,8 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <InputWrapper>
-                  <Input
+                <InputGroup>
+                  <InputGroupInput
                       id="password"
                       name="password"
                       type={showPassword ? "text" : "password"}
@@ -123,16 +129,17 @@ export function LoginForm({
                       required
                       aria-invalid={!!errors.password || !!errors.general}
                   />
-                  <Button 
-                      type="button"
-                      variant="ghost" 
-                      size='icon' 
-                      className='hover:bg-transparent -me-3.5 text-muted-foreground hover:text-foreground'
-                      onClick={togglePasswordVisibility}
-                  >
-                      {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
-                  </Button>
-                </InputWrapper>
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton
+                        type="button"
+                        variant="ghost"
+                        className='hover:bg-transparent text-muted-foreground hover:text-foreground'
+                        onClick={togglePasswordVisibility}
+                    >
+                        {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
                 {errors.password && <FieldError>{errors.password}</FieldError>}
               </Field>
 

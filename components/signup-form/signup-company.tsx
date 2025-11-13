@@ -10,7 +10,13 @@ import {
   FieldLabel,
   FieldError,
 } from "@/components/ui/field"
-import { Input, InputWrapper } from "@/components/ui/input"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group"
+import { Input } from "@/components/ui/input"
 import { useRouter } from 'next/navigation';
 
 type ErrorState = {
@@ -154,8 +160,8 @@ const SignupCompany = () => {
                     <Field className="grid grid-cols-2 gap-4">
                         <Field>
                             <FieldLabel htmlFor="password">Password</FieldLabel>
-                            <InputWrapper>
-                                <Input
+                            <InputGroup>
+                                <InputGroupInput
                                     id="password"
                                     name="password"
                                     type={showPassword ? "text" : "password"}
@@ -163,21 +169,22 @@ const SignupCompany = () => {
                                     required
                                     aria-invalid={!!errors.password}
                                 />
-                                <Button 
-                                    type="button"
-                                    variant="ghost" 
-                                    size='icon' 
-                                    className='hover:bg-transparent -me-3.5 text-muted-foreground hover:text-foreground'
-                                    onClick={togglePasswordVisibility}
-                                >
-                                    {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
-                                </Button>
-                            </InputWrapper>
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupButton
+                                        type="button"
+                                        variant="ghost"
+                                        className='hover:bg-transparent text-muted-foreground hover:text-foreground'
+                                        onClick={togglePasswordVisibility}
+                                    >
+                                        {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+                                    </InputGroupButton>
+                                </InputGroupAddon>
+                            </InputGroup>
                         </Field>
                         <Field>
                             <FieldLabel htmlFor="confirm-password">Confirm Password</FieldLabel>
-                            <InputWrapper>
-                                <Input
+                            <InputGroup>
+                                <InputGroupInput
                                     id="confirm-password"
                                     name="confirm-password"
                                     type={showConfirmPassword ? "text" : "password"}
@@ -185,16 +192,17 @@ const SignupCompany = () => {
                                     required
                                     aria-invalid={!!errors.password}
                                 />
-                                <Button 
-                                    type="button"
-                                    variant="ghost" 
-                                    size='icon' 
-                                    className='hover:bg-transparent -me-3.5 text-muted-foreground hover:text-foreground'
-                                    onClick={toggleConfirmPasswordVisibility}
-                                >
-                                    {showConfirmPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
-                                </Button>
-                            </InputWrapper>
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupButton
+                                        type="button"
+                                        variant="ghost"
+                                        className='hover:bg-transparent text-muted-foreground hover:text-foreground'
+                                        onClick={toggleConfirmPasswordVisibility}
+                                    >
+                                        {showConfirmPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+                                    </InputGroupButton>
+                                </InputGroupAddon>
+                            </InputGroup>
                         </Field>
                     </Field>
                     {errors.password ? (
