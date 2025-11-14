@@ -10,6 +10,13 @@ import { Slider, SliderThumb } from '@/components/ui/slider';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from "@/components/ui/input-group"
 
 const items = [
   { id: 1, price: 80 },
@@ -66,11 +73,27 @@ export default function PriceRangeForm() {
               <div className="flex items-center justify-between mt-4 gap-4">
                 <div>
                   <Label htmlFor={`${id}-min`} className='mb-2'>Min Price</Label>
-                  <Input id={`${id}-min`} type="number" value={inputValues[0]} onChange={(e) => handleInputChange(e, 0)} onBlur={() => validateAndUpdateValue(inputValues[0], 0)}/>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <InputGroupText>$</InputGroupText>
+                    </InputGroupAddon>
+                    <InputGroupInput id={`${id}-min`} type="number" value={inputValues[0]} onChange={(e) => handleInputChange(e, 0)} onBlur={() => validateAndUpdateValue(inputValues[0], 0)} placeholder="0.00" />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupText>USD</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
                 </div>
                 <div>
                   <Label htmlFor={`${id}-max`} className='mb-2'>Max Price</Label>
-                  <Input id={`${id}-max`} type="number" value={inputValues[1]} onChange={(e) => handleInputChange(e, 1)} onBlur={() => validateAndUpdateValue(inputValues[1], 1)}/>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <InputGroupText>$</InputGroupText>
+                    </InputGroupAddon>
+                    <InputGroupInput id={`${id}-max`} type="number" value={inputValues[1]} onChange={(e) => handleInputChange(e, 1)} onBlur={() => validateAndUpdateValue(inputValues[1], 1)} placeholder="0.00" />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupText>USD</InputGroupText>
+                    </InputGroupAddon>
+                  </InputGroup>
                 </div>
               </div>
               <FormMessage />

@@ -1,4 +1,7 @@
-import React, { Fragment } from 'react'
+'use client'
+
+import { Fragment, useState } from 'react'
+import { cn } from '@/lib/utils'
 import { Info } from 'lucide-react'
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -6,8 +9,9 @@ import { Label } from '@/components/ui/label'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ScrollArea } from '@/components/ui/scroll-area'
-import PriceRangeForm from '@/app/(main)/search/components/price-range-form'
-import { cn } from '@/lib/utils'
+import PriceRangeForm from './price-range-form'
+import DiscountRangeForm from './discount-range-form'
+import { CheckboxFilter } from './checkbox-filter'
 
 const Categories = [
     { id: 1, label: "Women's Sets" },
@@ -22,7 +26,22 @@ const Categories = [
     { id: 10, label: "Women's Sets" },
 ]
 
+const colors = [
+    { id: "1", name: "Black" },
+    { id: "2", name: "White" },
+    { id: "3", name: "Red" },
+    { id: "4", name: "Blue" },
+    { id: "5", name: "Green" },
+    { id: "6", name: "Yellow" },
+    { id: "7", name: "Orange" },
+    { id: "8", name: "Purple" },
+    { id: "9", name: "Pink" },
+    { id: "10", name: "Brown" },
+];
+
 const FilterMenu = ({className} : {className?: string}) => {
+    const [selectedColors, setSelectedColors] = useState<string[]>([]);
+    
     return (
         <div className={cn('w-2/10 flex flex-col', className)}>
             <h1 className='text-2xl font-semibold'>Filter</h1>
@@ -112,6 +131,25 @@ const FilterMenu = ({className} : {className?: string}) => {
             </div>
 
             <Separator className="my-4" />
+
+            <div className='flex flex-col gap-1'>
+                <p className='text-lg font-semibold'>Discount Range</p>
+                <DiscountRangeForm />
+            </div>
+
+            <Separator className="my-4" />
+
+            <div className='flex flex-col gap-1'>
+                <p className='text-lg font-semibold'>Color</p>
+                <CheckboxFilter
+                    items={colors}
+                    showSearch={false}
+                    onSelectionChange={(ids) => {
+                        console.log("Selected suppliers:", ids);
+                        setSelectedColors(ids);
+                    }}
+                />
+            </div>
         </div>
     )
 }

@@ -22,11 +22,12 @@ const borderBottomStyle = "flex items-center py-5 px-4 text-sm font-medium text-
 const borderBottomLinkStyle = "flex items-center py-5 px-4 text-sm font-medium text-white cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-white after:scale-x-0 after:origin-center after:transition-transform after:duration-300 after:ease-in-out"
 
 // --- Main Component ---
-const NavBar = () => {
+const NavBar = ({ page = 'default' }: { page?: 'default' | 'search' }) => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null)
     const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-    const { isScrolledPastSearch } = useScroll()
     const [isScrolled, setIsScrolled] = useState(false)
+    const isSearchPage = page === 'search'
+    const { isScrolledPastSearch = false } = !isSearchPage ? useScroll() : {};
 
     const handleTriggerEnter = (menuId: string) => {
         if (hoverTimeoutRef.current) {
@@ -104,7 +105,7 @@ const NavBar = () => {
                     </svg>
                 </a>
 
-                <div className={cn( "flex flex-row items-center gap-2", isScrolledPastSearch ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")}>
+                <div className={cn( "flex flex-row items-center gap-2", (isScrolledPastSearch || isSearchPage) ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")}>
                     <SearchBar className="md:w-lg w-[200px]" /> 
                     <Button variant="secondary" size="lg" className="rounded-full hover:text-primary/90 hover:bg-gray-100">
                         <MapPin className='size-4'/> Location
@@ -127,7 +128,7 @@ const NavBar = () => {
             
             {/* Bottom Section */}
             <div 
-                onMouseLeave={handleTriggerLeave} className={cn( "transition-all duration-300 ease-in-out overflow-hidden", isScrolled ? "max-h-0 opacity-0" : "max-h-20 opacity-100")}>
+                onMouseLeave={handleTriggerLeave} className={cn( "transition-all duration-300 ease-in-out overflow-hidden", (isScrolled || isSearchPage) ? "max-h-0 opacity-0" : "max-h-20 opacity-100")}>
                 <div className="flex items-center justify-between w-full">
                     {/* Left-aligned triggers */}
                     <div className="flex items-center">
