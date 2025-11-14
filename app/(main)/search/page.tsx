@@ -9,7 +9,7 @@ const page = () => {
             
             {/* Result Products */}
             <div className='w-8/10'>
-                <h1>Products</h1>
+                <h1>Products Result</h1>
             </div>
         </div>
     )

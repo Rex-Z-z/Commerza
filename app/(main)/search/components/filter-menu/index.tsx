@@ -12,39 +12,80 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import PriceRangeForm from './price-range-form'
 import DiscountRangeForm from './discount-range-form'
 import { CheckboxFilter } from './checkbox-filter'
+import { Button } from '@/components/ui/button'
 
 const Categories = [
-    { id: 1, label: "Women's Sets" },
-    { id: 2, label: "Traditional Muslim Clothing&Accessories" },
-    { id: 3, label: "Muslim Clothing&Accessories" },
-    { id: 4, label: "Traditional Muslim Clothing&Accessories" },
-    { id: 5, label: "Women's Sets" },
-    { id: 6, label: "Women's Sets" },
-    { id: 7, label: "Traditional Muslim Clothing&Accessories" },
-    { id: 8, label: "Muslim Clothing&Accessories" },
-    { id: 9, label: "Traditional Muslim Clothing&Accessories" },
-    { id: 10, label: "Women's Sets" },
+    { id: 1, label: "Speakers" },
+    { id: 2, label: "Gaming Speakers" },
+    { id: 3, label: "Portable Speakers" },
+    { id: 4, label: "Smart Speakers" },
+    { id: 5, label: "Charging Stand & Holders" },
 ]
 
-const colors = [
-    { id: "1", name: "Black" },
-    { id: "2", name: "White" },
-    { id: "3", name: "Red" },
-    { id: "4", name: "Blue" },
-    { id: "5", name: "Green" },
-    { id: "6", name: "Yellow" },
-    { id: "7", name: "Orange" },
-    { id: "8", name: "Purple" },
-    { id: "9", name: "Pink" },
-    { id: "10", name: "Brown" },
+const data = [
+	{
+		title: "Color",
+		items: [ 
+            { id: "color-1", name: "Black" },
+            { id: "color-2", name: "White" },
+            { id: "color-3", name: "Red" },
+            { id: "color-4", name: "Blue" },
+            { id: "color-5", name: "Green" },
+            { id: "color-6", name: "Yellow" },
+            { id: "color-7", name: "Orange" },
+            { id: "color-8", name: "Purple" },
+            { id: "color-9", name: "Pink" },
+            { id: "color-10", name: "Brown" },
+        ]
+	},
+	{
+		title: "Brand",
+        showSearch: true, 
+		items: [
+			{ id: "brand-1", name: "Brand A" },
+			{ id: "brand-2", name: "Brand B" },
+			{ id: "brand-3", name: "Brand C" },
+            { id: "brand-4", name: "Brand D" },
+			{ id: "brand-5", name: "Brand E" },
+			{ id: "brand-6", name: "Brand F" },
+		]
+	},
+    {
+		title: "Features",
+		items: [
+			{ id: "feat-1", name: "Bluetooth" },
+			{ id: "feat-2", name: "Waterproof" },
+			{ id: "feat-3", name: "WiFi 6" },
+            { id: "feat-4", name: "NFC" },
+			{ id: "feat-5", name: "GPS" },
+			{ id: "feat-6", name: "USB-C" },
+		]
+	},
+    {
+        title: "Size",
+        items: [
+            { id: "size-1", name: "Small" },
+            { id: "size-2", name: "Medium" },
+            { id: "size-3", name: "Large" },
+        ]
+    }
 ];
 
 const FilterMenu = ({className} : {className?: string}) => {
-    const [selectedColors, setSelectedColors] = useState<string[]>([]);
+    const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
+
+    const handleFilterChange = (title: string, ids: string[]) => {
+        const newSelectedFilters = {
+            ...selectedFilters,
+            [title]: ids
+        };
+        setSelectedFilters(newSelectedFilters);
+        console.log("Selected Filters:", newSelectedFilters);
+    };
     
     return (
         <div className={cn('w-2/10 flex flex-col', className)}>
-            <h1 className='text-2xl font-semibold'>Filter</h1>
+            <h1 className='text-2xl font-semibold'>Filters</h1>
             
             <Separator className="my-4" />
             
@@ -131,25 +172,42 @@ const FilterMenu = ({className} : {className?: string}) => {
             </div>
 
             <Separator className="my-4" />
-
+            
+            {/* Discount */}
             <div className='flex flex-col gap-1'>
                 <p className='text-lg font-semibold'>Discount Range</p>
                 <DiscountRangeForm />
             </div>
+            
+            {/* Options */}
+            {data.map((filter) => {
+                const currentSelections = selectedFilters[filter.title] || [];
+                const isClearable = currentSelections.length > 0;
 
-            <Separator className="my-4" />
-
-            <div className='flex flex-col gap-1'>
-                <p className='text-lg font-semibold'>Color</p>
-                <CheckboxFilter
-                    items={colors}
-                    showSearch={false}
-                    onSelectionChange={(ids) => {
-                        console.log("Selected suppliers:", ids);
-                        setSelectedColors(ids);
-                    }}
-                />
-            </div>
+                return (
+                    <Fragment key={filter.title}>
+                        <Separator className="my-4" />
+                        <div className='flex flex-col gap-1'>
+                            <div className='flex flex-row justify-between items-center'>
+                                <p className='text-lg font-semibold'>{filter.title}</p>
+                                {isClearable && (
+                                    <Button size="sm" variant="link" onClick={() => handleFilterChange(filter.title, [])} className="h-auto p-0">
+                                        Clear
+                                    </Button>
+                                )}
+                            </div>
+                            <CheckboxFilter
+                                items={filter.items}
+                                showSearch={filter.showSearch || filter.items.length > 10} 
+                                selectedIds={currentSelections}
+                                onSelectionChange={(ids) => {
+                                    handleFilterChange(filter.title, ids);
+                                }}
+                            />
+                        </div>
+                    </Fragment>
+                )
+            })}
         </div>
     )
 }

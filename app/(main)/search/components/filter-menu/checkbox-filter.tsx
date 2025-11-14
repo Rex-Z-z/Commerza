@@ -20,19 +20,20 @@ type FilterItem = {
 type CheckboxFilterProps = {
   items: FilterItem[]
   showSearch?: boolean
-  onSelectionChange?: (selectedIds: string[]) => void
+  selectedIds: string[]
+  onSelectionChange: (selectedIds: string[]) => void
   className?: string
 }
 
 export function CheckboxFilter({
   items,
   showSearch = true,
+  selectedIds,
   onSelectionChange,
   className 
 }: CheckboxFilterProps) {
   const [searchTerm, setSearchTerm] = React.useState('')
-  
-  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
+  const selectedIdSet = React.useMemo(() => new Set(selectedIds), [selectedIds]);
 
   const filteredItems = items.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -41,7 +42,7 @@ export function CheckboxFilter({
   const handleCheckboxChange = (itemId: string, checked: boolean | 'indeterminate') => {
     if (checked === 'indeterminate') return;
 
-    const newSelectedIds = new Set(selectedIds);
+    const newSelectedIds = new Set(selectedIdSet);
 
     if (checked) {
       newSelectedIds.add(itemId);
@@ -49,9 +50,7 @@ export function CheckboxFilter({
       newSelectedIds.delete(itemId);
     }
 
-    setSelectedIds(newSelectedIds);
-    
-    onSelectionChange?.(Array.from(newSelectedIds));
+    onSelectionChange(Array.from(newSelectedIds));
   }
 
   return (
@@ -75,8 +74,12 @@ export function CheckboxFilter({
         <div className="flex flex-col gap-3 p-1">
           {filteredItems.map((item) => (
             <div key={item.id} className="flex items-center gap-3">
-              <Checkbox id={item.id} onCheckedChange={(checked) => handleCheckboxChange(item.id, checked)} checked={selectedIds.has(item.id)}/>
-              <Label htmlFor={item.id} className="flex cursor-pointer items-center gap-2 font-normal">
+              <Checkbox 
+                id={item.id} 
+                onCheckedChange={(checked) => handleCheckboxChange(item.id, checked)} 
+                checked={selectedIdSet.has(item.id)}
+              />
+              <Label htmlFor={item.id} className="flex cursor-pointer items-center gap-2 text-sm font-normal">
                 {item.name}
               </Label>
             </div>

@@ -102,12 +102,12 @@ export default function PriceRangeForm() {
         />
 
         {/* Submit and Reset */}
-        <div className="flex justify-end gap-2">
+        {/* <div className="flex justify-end gap-2">
           <Button type="reset" variant="outline" onClick={() => { form.reset();setSliderValues([minValue, maxValue]); setInputValues([minValue, maxValue]); }}>
             Reset
           </Button>
           <Button type="button">Submit</Button>
-        </div>
+        </div> */}
       </form>
     </Form>
   );
