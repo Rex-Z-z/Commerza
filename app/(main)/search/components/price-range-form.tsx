@@ -53,7 +53,7 @@ export default function PriceRangeForm() {
 
   return (
     <Form {...form}>
-      <form className="w-full md:w-[400px] space-y-6">
+      <form className="w-full space-y-6">
         {/* Slider and Inputs */}
         <FormField control={form.control} name="range"
           render={() => (
