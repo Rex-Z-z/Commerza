@@ -15,7 +15,7 @@ export default function DashboardLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {/* <NavBar page="dashboard" /> */}
+        <NavBar page="dashboard" />
         <main>
           {children}
         </main>
