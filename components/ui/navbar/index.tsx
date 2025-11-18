@@ -22,12 +22,15 @@ const borderBottomStyle = "flex items-center py-5 px-4 text-sm font-medium text-
 const borderBottomLinkStyle = "flex items-center py-5 px-4 text-sm font-medium text-white cursor-pointer relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-white after:scale-x-0 after:origin-center after:transition-transform after:duration-300 after:ease-in-out"
 
 // --- Main Component ---
-const NavBar = ({ page = 'default' }: { page?: 'default' | 'search' }) => {
+// 1. UPDATED PROP TYPE
+const NavBar = ({ page = 'default' }: { page?: 'default' | 'search' | 'dashboard' }) => {
     const [activeIndex, setActiveIndex] = useState<number | null>(null)
     const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
     const [isScrolled, setIsScrolled] = useState(false)
     const isSearchPage = page === 'search'
-    const { isScrolledPastSearch = false } = !isSearchPage ? useScroll() : {};
+    
+    // 2. UPDATED HOOK CALL
+    const { isScrolledPastSearch = false } = (page === 'default') ? useScroll() : {};
 
     const handleTriggerEnter = (menuId: string) => {
         if (hoverTimeoutRef.current) {
@@ -105,12 +108,16 @@ const NavBar = ({ page = 'default' }: { page?: 'default' | 'search' }) => {
                     </svg>
                 </a>
 
-                <div className={cn( "flex flex-row items-center gap-2", (isScrolledPastSearch || isSearchPage) ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")}>
-                    <SearchBar className="md:w-lg w-[200px]" /> 
-                    <Button variant="secondary" size="lg" className="rounded-full hover:text-primary/90 hover:bg-gray-100">
-                        <MapPin className='size-4'/> Location
-                    </Button>
-                </div>
+                {page !== 'dashboard' && (
+                    <div className={cn( "flex flex-row items-center gap-2", (isScrolledPastSearch || isSearchPage) ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none")}>
+                        <SearchBar className="md:w-lg w-[200px]" /> 
+                        <Button variant="secondary" size="lg" className="rounded-full hover:text-primary/90 hover:bg-gray-100">
+                            <MapPin className='size-4'/> Location
+                        </Button>
+                    </div>
+                )}
+
+                {page === 'dashboard' && <div className="flex-grow" />}
 
                 <div className='flex flex-row items-center gap-2'>
                     <Button variant="ghost" size="lg" className="text-white hover:text-white hover:bg-accent/20" asChild> 
@@ -128,7 +135,8 @@ const NavBar = ({ page = 'default' }: { page?: 'default' | 'search' }) => {
             
             {/* Bottom Section */}
             <div 
-                onMouseLeave={handleTriggerLeave} className={cn( "transition-all duration-300 ease-in-out overflow-hidden", (isScrolled || isSearchPage) ? "max-h-0 opacity-0" : "max-h-20 opacity-100")}>
+                onMouseLeave={handleTriggerLeave} 
+                className={cn( "transition-all duration-300 ease-in-out overflow-hidden", (isScrolled || isSearchPage || page === 'dashboard') ? "max-h-0 opacity-0" : "max-h-20 opacity-100")}>
                 <div className="flex items-center justify-between w-full">
                     {/* Left-aligned triggers */}
                     <div className="flex items-center">
