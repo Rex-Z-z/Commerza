@@ -1,6 +1,11 @@
 import { Metadata } from "next";
 import "../globals.css";
 import NavBar from "@/components/ui/navbar";
+import { DashboardSidebar } from "@/components/dashboard-sidebar"
+import {
+  SidebarInset,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
 
 export const metadata: Metadata = {
   title: "E-Commerce App / Dashboard",
@@ -16,9 +21,18 @@ export default function DashboardLayout({
     <html lang="en">
       <body className="antialiased">
         <NavBar page="dashboard" />
-        <main>
-          {children}
-        </main>
+        <div className='[--header-height:calc(--spacing(19))]'>
+          <SidebarProvider className="flex flex-col">
+            <div className="flex flex-1">
+              <DashboardSidebar />
+              <SidebarInset>
+                <main className="p-4">
+                  {children}
+                </main>
+              </SidebarInset>
+            </div>
+          </SidebarProvider>
+        </div>
       </body>
     </html>
   );

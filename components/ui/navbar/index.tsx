@@ -88,7 +88,9 @@ const NavBar = ({ page = 'default' }: { page?: 'default' | 'search' | 'dashboard
 
     // --- Main Render ---
     return (
-        <div className={cn(`flex flex-col bg-[#35B9EC] border-b border-transparent sticky top-0 z-20`, isScrolled ? "shadow-md" : "")}>
+        <div className={cn(`flex flex-col bg-[#35B9EC] border-b border-transparent sticky top-0 z-20`, 
+            isScrolled ? "shadow-md" : "", page === 'dashboard' ? "" : "h-(--header-height)"
+        )}>
             {/* Top Section */}
             <div className="px-4 py-4 flex items-center justify-between">
                 <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
@@ -117,7 +119,7 @@ const NavBar = ({ page = 'default' }: { page?: 'default' | 'search' | 'dashboard
                     </div>
                 )}
 
-                {page === 'dashboard' && <div className="flex-grow" />}
+                {page === 'dashboard' && <div className="grow" />}
 
                 <div className='flex flex-row items-center gap-2'>
                     <Button variant="ghost" size="lg" className="text-white hover:text-white hover:bg-accent/20" asChild> 

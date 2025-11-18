@@ -2,7 +2,7 @@
 
 import { SidebarIcon } from "lucide-react"
 
-import { SearchForm } from "@/components/(exmaple)/search-form"
+import { SearchForm } from "@/components/(example)/search-form"
 import {
   Breadcrumb,
   BreadcrumbItem,
