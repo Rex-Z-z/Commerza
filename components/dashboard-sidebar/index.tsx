@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   Package,
@@ -26,69 +27,91 @@ import {
 import NavFooter from "./nav-footer"
 import { NavMain } from "./nav-main"
 
-const data = {
+// Define the base data structure with correct URLs
+const baseData = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: LayoutDashboard,
     },
     {
       title: "Products",
-      url: "#",
+      url: "/products",
       icon: Package,
       items: [
         {
-          title: "Products",
-          url: "#",
+          title: "All Products",
+          url: "/products",
         },
         {
           title: "Order",
-          url: "#",
+          url: "/products/order", // Assumed path based on standard structure
         },
         {
           title: "Wishlist",
-          url: "#",
+          url: "/products/wishlist", // Assumed path
         },
       ],
     },
     {
       title: "Finances",
-      url: "#",
+      url: "/finance",
       icon: DollarSign,
     },
     {
       title: "Notifications",
-      url: "#",
+      url: "/notification",
       icon: Bell,
     },
   ],
   navFooter: [
     {
       title: "Support",
-      url: "#",
+      url: "/support",
       icon: Headset
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: Settings
     },
   ],
 }
 
 export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const pathname = usePathname()
+
+  const navMain = React.useMemo(() => {
+    return baseData.navMain.map((item) => {
+      const isChildActive = item.items?.some(
+        (subItem) => subItem.url === pathname
+      );
+      
+      const isActive = item.url === pathname || isChildActive;
+
+      return {
+        ...item,
+        isActive, // Parent active state (expands menu)
+        items: item.items?.map((subItem) => ({
+          ...subItem,
+          isActive: subItem.url === pathname,
+        })),
+      };
+    });
+  }, [pathname]);
+
   return (
     <Sidebar
-      className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
+      className="top-(--header-height) h-[calc(100svh-var(--header-height))]! text-gray-600 shadow-md"
       {...props}
     >
       {/* Profile */}
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg">
-              <Avatar className="h-8 w-8 rounded-lg">
+            <SidebarMenuButton className="py-8">
+              <Avatar className="h-12 w-12 rounded-full">
                 <AvatarImage src="https://github.com/shadcn.png" alt="Chou Seangly" />
                 <AvatarFallback className="rounded-lg">CS</AvatarFallback>
               </Avatar>
@@ -103,12 +126,12 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
 
       {/* Navigation */}
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       
       {/* Footer */}
-      <SidebarFooter>
-        <NavFooter items={data.navFooter} />
+      <SidebarFooter className="px-0">
+        <NavFooter items={baseData.navFooter} />
       </SidebarFooter>
     </Sidebar>
   )

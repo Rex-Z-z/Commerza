@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import { ChevronRight, Dot, type LucideIcon } from "lucide-react"
 
 import {
   Collapsible,
@@ -30,24 +30,25 @@ export function NavMain({
     items?: {
       title: string
       url: string
+      isActive?: boolean
     }[]
   }[]
 }) {
   return (
-    <SidebarGroup>
+    <SidebarGroup className="px-0">
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild tooltip={item.title} isActive={item.isActive}>
+              <SidebarMenuButton className="py-5 rounded-none data-[active=true]:bg-primary/10 data-[active=true]:text-primary border-l-4 border-transparent data-[active=true]:border-primary" asChild tooltip={item.title} isActive={item.isActive}>
                 <a href={item.url}>
-                  <item.icon />
+                  <item.icon/>
                   <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>
               {item.items?.length ? (
                 <>
-                  <CollapsibleTrigger asChild>
+                  <CollapsibleTrigger className="mt-1 hover:bg-primary/10" asChild>
                     <SidebarMenuAction className="data-[state=open]:rotate-90">
                       <ChevronRight />
                       <span className="sr-only">Toggle</span>
@@ -57,7 +58,7 @@ export function NavMain({
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
+                          <SidebarMenuSubButton className="data-[active=true]:bg-transparent data-[active=true]:text-primary" asChild isActive={subItem.isActive}>
                             <a href={subItem.url}>
                               <span>{subItem.title}</span>
                             </a>

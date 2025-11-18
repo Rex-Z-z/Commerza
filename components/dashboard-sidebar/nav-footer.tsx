@@ -21,12 +21,12 @@ const NavFooter = ({
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) => {
   return (
-    <SidebarGroup>
+    <SidebarGroup className='px-0'>
       <SidebarContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild size="sm">
+              <SidebarMenuButton className="py-5 rounded-none" asChild>
                 <a href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>
