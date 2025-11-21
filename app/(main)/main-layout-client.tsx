@@ -4,6 +4,8 @@ import "../globals.css";
 import NavBar from "@/components/ui/navbar";
 import { ScrollProvider } from "../context/scroll-context";
 import { usePathname } from 'next/navigation';
+// 1. Import the SidebarProvider
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function MainLayoutClient({
   children,
@@ -19,17 +21,19 @@ export default function MainLayoutClient({
     <body
       className={`${fontClassNames} antialiased`}
     >
-      {isSearchPage ? (
-        <>
-          <NavBar page="search" />
-          {children}
-        </>
-      ) : (
-        <ScrollProvider>
-          <NavBar page="default" />
-          {children}
-        </ScrollProvider>
-      )}
+      <SidebarProvider defaultOpen={false} className="flex flex-col">
+        {isSearchPage ? (
+          <>
+            <NavBar page="search" />
+            {children}
+          </>
+        ) : (
+          <ScrollProvider>
+            <NavBar page="default" />
+            {children}
+          </ScrollProvider>
+        )}
+      </SidebarProvider>
     </body>
   );
 }

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { cookies } from "next/headers";
 import "../globals.css";
 import NavBar from "@/components/ui/navbar";
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
@@ -13,15 +14,18 @@ export const metadata: Metadata = {
   description: "A modern e-commerce application built with Next.js and Tailwind CSS",
 };
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies()
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
+
   return (
     <html lang="en">
       <body className="antialiased">
-        <SidebarProvider className="flex flex-col">
+        <SidebarProvider defaultOpen={defaultOpen} className="flex flex-col">
           <NavBar page="dashboard" />
           <div className='[--header-height:calc(--spacing(18))]'>
             <div className="flex flex-1">

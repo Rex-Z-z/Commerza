@@ -41,7 +41,7 @@ export function NavMain({
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
               <SidebarMenuButton
-                className="py-5.5 pl-4 rounded-none border-l-4 border-transparent
+                className="w-full py-5.5 pl-4 rounded-none border-l-4 border-transparent
                 data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:border-primary 
                 group-data-[collapsible=icon]:py-0 group-data-[collapsible=icon]:pl-0 group-data-[collapsible=icon]:border-none group-data-[collapsible=icon]:rounded-md" 
                 tooltip={item.title} 
@@ -55,7 +55,7 @@ export function NavMain({
               </SidebarMenuButton>
               {item.items?.length ? (
                 <>
-                  <CollapsibleTrigger className="mt-1 hover:bg-primary/10" asChild>
+                  <CollapsibleTrigger className="mt-1 mr-1 hover:bg-primary/10" asChild>
                     <SidebarMenuAction className="data-[state=open]:rotate-90">
                       <ChevronRight />
                       <span className="sr-only">Toggle</span>
