@@ -20,12 +20,12 @@ const NavFooter = ({
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) => {
   return (
-    <SidebarGroup className='px-0'>
+    <SidebarGroup className='px-0 group-data-[collapsible=icon]:p-2'>
       <SidebarContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton className="py-5 rounded-none" asChild>
+              <SidebarMenuButton className="py-5 rounded-none group-data-[collapsible=icon]:rounded-md" asChild>
                 <a href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>

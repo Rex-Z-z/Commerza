@@ -104,15 +104,16 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
   return (
     <Sidebar
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]! border-r border-[#E5E5E7] text-gray-600 shadow-xs"
+      collapsible="icon"
       {...props}
     >
       {/* Profile */}
       <SidebarHeader className="bg-white">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="py-8 hover:bg-gray-50" asChild>
+            <SidebarMenuButton size="lg" className="py-8 hover:bg-gray-50" asChild>
               <a href="/profile" className="flex gap-3 items-center cursor-pointer">
-                <Avatar className="h-12 w-12 rounded-full">
+                <Avatar className="h-12 w-12 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 rounded-full">
                   <AvatarImage src="https://github.com/shadcn.png" alt="Chou Seangly" />
                   <AvatarFallback className="rounded-lg">CS</AvatarFallback>
                 </Avatar>

@@ -35,12 +35,19 @@ export function NavMain({
   }[]
 }) {
   return (
-    <SidebarGroup className="px-0">
+    <SidebarGroup className="px-0 group-data-[collapsible=icon]:p-2">
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton className="py-5.5 pl-4 rounded-none data-[active=true]:bg-primary/10 data-[active=true]:text-primary border-l-4 border-transparent data-[active=true]:border-primary" asChild tooltip={item.title} isActive={item.isActive}>
+              <SidebarMenuButton
+                className="py-5.5 pl-4 rounded-none border-l-4 border-transparent
+                data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:border-primary 
+                group-data-[collapsible=icon]:py-0 group-data-[collapsible=icon]:pl-0 group-data-[collapsible=icon]:border-none group-data-[collapsible=icon]:rounded-md" 
+                tooltip={item.title} 
+                isActive={item.isActive}
+                asChild
+              >
                 <a href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>

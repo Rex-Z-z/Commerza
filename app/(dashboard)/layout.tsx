@@ -6,6 +6,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { DashboardBreadcrumb } from "@/components/dashboard-breadcrumb"
 
 export const metadata: Metadata = {
   title: "E-Commerce App / Dashboard",
@@ -20,19 +21,20 @@ export default function DashboardLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <NavBar page="dashboard" />
-        <div className='[--header-height:calc(--spacing(18.5))]'>
-          <SidebarProvider className="flex flex-col">
+        <SidebarProvider className="flex flex-col">
+          <NavBar page="dashboard" />
+          <div className='[--header-height:calc(--spacing(18))]'>
             <div className="flex flex-1">
               <DashboardSidebar />
               <SidebarInset>
                 <main className="p-4">
+                  <DashboardBreadcrumb />
                   {children}
                 </main>
               </SidebarInset>
             </div>
-          </SidebarProvider>
-        </div>
+          </div>
+        </SidebarProvider>
       </body>
     </html>
   );
