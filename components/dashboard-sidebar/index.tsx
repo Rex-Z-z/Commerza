@@ -26,14 +26,14 @@ import {
 } from "@/components/ui/avatar"
 import NavFooter from "./nav-footer"
 import { NavMain } from "./nav-main"
+import { DashboardIcon, DollarIcon } from "../icons/custom-icon"
 
-// Define the base data structure with correct URLs
 const baseData = {
   navMain: [
     {
       title: "Dashboard",
       url: "/dashboard",
-      icon: LayoutDashboard,
+      icon: DashboardIcon,
     },
     {
       title: "Products",
@@ -46,18 +46,18 @@ const baseData = {
         },
         {
           title: "Order",
-          url: "/products/order", // Assumed path based on standard structure
+          url: "/products/order",
         },
         {
           title: "Wishlist",
-          url: "/products/wishlist", // Assumed path
+          url: "/products/wishlist",
         },
       ],
     },
     {
       title: "Finances",
       url: "/finance",
-      icon: DollarSign,
+      icon: DollarIcon,
     },
     {
       title: "Notifications",
@@ -92,7 +92,7 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
 
       return {
         ...item,
-        isActive, // Parent active state (expands menu)
+        isActive,
         items: item.items?.map((subItem) => ({
           ...subItem,
           isActive: subItem.url === pathname,

@@ -21,7 +21,7 @@ export default function DashboardLayout({
     <html lang="en">
       <body className="antialiased">
         <NavBar page="dashboard" />
-        <div className='[--header-height:calc(--spacing(19))]'>
+        <div className='[--header-height:calc(--spacing(18.5))]'>
           <SidebarProvider className="flex flex-col">
             <div className="flex flex-1">
               <DashboardSidebar />

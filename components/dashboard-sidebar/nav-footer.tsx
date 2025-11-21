@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { type ElementType } from 'react'
 import {
   SidebarContent,
   SidebarGroup,
@@ -8,7 +8,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LucideIcon, Settings } from 'lucide-react'
 
 const NavFooter = ({
   items,
@@ -17,7 +16,7 @@ const NavFooter = ({
   items: {
     title: string
     url: string
-    icon: LucideIcon
+    icon: ElementType
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) => {
   return (

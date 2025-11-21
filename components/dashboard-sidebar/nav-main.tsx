@@ -1,6 +1,7 @@
 "use client"
 
-import { ChevronRight, Dot, type LucideIcon } from "lucide-react"
+import { type ElementType } from "react"
+import { ChevronRight } from "lucide-react"
 
 import {
   Collapsible,
@@ -9,7 +10,6 @@ import {
 } from "@/components/ui/collapsible"
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuAction,
   SidebarMenuButton,
@@ -25,7 +25,7 @@ export function NavMain({
   items: {
     title: string
     url: string
-    icon: LucideIcon
+    icon: ElementType
     isActive?: boolean
     items?: {
       title: string
@@ -42,7 +42,7 @@ export function NavMain({
             <SidebarMenuItem>
               <SidebarMenuButton className="py-5 rounded-none data-[active=true]:bg-primary/10 data-[active=true]:text-primary border-l-4 border-transparent data-[active=true]:border-primary" asChild tooltip={item.title} isActive={item.isActive}>
                 <a href={item.url}>
-                  <item.icon/>
+                  <item.icon />
                   <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>
