@@ -40,7 +40,7 @@ export function NavMain({
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
-              <SidebarMenuButton className="py-5 rounded-none data-[active=true]:bg-primary/10 data-[active=true]:text-primary border-l-4 border-transparent data-[active=true]:border-primary" asChild tooltip={item.title} isActive={item.isActive}>
+              <SidebarMenuButton className="py-5.5 pl-4 rounded-none data-[active=true]:bg-primary/10 data-[active=true]:text-primary border-l-4 border-transparent data-[active=true]:border-primary" asChild tooltip={item.title} isActive={item.isActive}>
                 <a href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>

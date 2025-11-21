@@ -103,34 +103,36 @@ export function DashboardSidebar({ ...props }: React.ComponentProps<typeof Sideb
 
   return (
     <Sidebar
-      className="top-(--header-height) h-[calc(100svh-var(--header-height))]! text-gray-600 shadow-md"
+      className="top-(--header-height) h-[calc(100svh-var(--header-height))]! border-r border-[#E5E5E7] text-gray-600 shadow-xs"
       {...props}
     >
       {/* Profile */}
-      <SidebarHeader>
+      <SidebarHeader className="bg-white">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="py-8">
-              <Avatar className="h-12 w-12 rounded-full">
-                <AvatarImage src="https://github.com/shadcn.png" alt="Chou Seangly" />
-                <AvatarFallback className="rounded-lg">CS</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Chou Seangly</span>
-                <span className="truncate text-xs">seangly@example.com</span>
-              </div>
+            <SidebarMenuButton className="py-8 hover:bg-gray-50" asChild>
+              <a href="/profile" className="flex gap-3 items-center cursor-pointer">
+                <Avatar className="h-12 w-12 rounded-full">
+                  <AvatarImage src="https://github.com/shadcn.png" alt="Chou Seangly" />
+                  <AvatarFallback className="rounded-lg">CS</AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 gap-1 text-left text-sm leading-tight">
+                  <span className="truncate text-md font-bold">Chou Seangly</span>
+                  <span className="truncate text-xs text-gray-400">seangly@example.com</span>
+                </div>
+              </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
       {/* Navigation */}
-      <SidebarContent>
+      <SidebarContent className="bg-white">
         <NavMain items={navMain} />
       </SidebarContent>
       
       {/* Footer */}
-      <SidebarFooter className="px-0">
+      <SidebarFooter className="px-0 bg-white">
         <NavFooter items={baseData.navFooter} />
       </SidebarFooter>
     </Sidebar>
