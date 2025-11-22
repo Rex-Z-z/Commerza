@@ -15,7 +15,7 @@ async function getData(): Promise<Product[]> {
             price: 100,
             category: "Category 1",
             rating: 4.5,
-            monthlySales: 500,
+            monthlySales: 157,
             status: "Active"
         },
         {
@@ -24,8 +24,8 @@ async function getData(): Promise<Product[]> {
             price: 200,
             category: "Category 2",
             rating: 4.5,
-            monthlySales: 500,
-            status: "Active"
+            monthlySales: 88,
+            status: "Inactive"
         },
         {
             id: "3",
@@ -33,8 +33,8 @@ async function getData(): Promise<Product[]> {
             price: 300,
             category: "Category 3",
             rating: 4.5,
-            monthlySales: 500,
-            status: "Active"
+            monthlySales: 121,
+            status: "Suspended"
         },
         {
             id: "4",
@@ -42,8 +42,8 @@ async function getData(): Promise<Product[]> {
             price: 400,
             category: "Category 4",
             rating: 4.5,
-            monthlySales: 500,
-            status: "Active"
+            monthlySales: 17,
+            status: "Pending"
         },
         {
             id: "5",
@@ -51,8 +51,8 @@ async function getData(): Promise<Product[]> {
             price: 500,
             category: "Category 5",
             rating: 4.5,
-            monthlySales: 500,
-            status: "Active"
+            monthlySales: 193,
+            status: "Inactive"
         },
         {
             id: "6",
@@ -60,7 +60,7 @@ async function getData(): Promise<Product[]> {
             price: 600,
             category: "Category 6",
             rating: 4.5,
-            monthlySales: 500,
+            monthlySales: 34,
             status: "Active"
         },
         {
@@ -69,8 +69,8 @@ async function getData(): Promise<Product[]> {
             price: 700,
             category: "Category 7",
             rating: 4.5,
-            monthlySales: 500,
-            status: "Active"
+            monthlySales: 6,
+            status: "Pending"
         },
         {
             id: "8",
@@ -78,8 +78,8 @@ async function getData(): Promise<Product[]> {
             price: 800,
             category: "Category 8",
             rating: 4.5,
-            monthlySales: 500,
-            status: "Active"
+            monthlySales: 145,
+            status: "Inactive"
         },
         {
             id: "9",
@@ -87,7 +87,7 @@ async function getData(): Promise<Product[]> {
             price: 900,
             category: "Category 9",
             rating: 4.5,
-            monthlySales: 500,
+            monthlySales: 72,
             status: "Active"
         },
         {
@@ -96,7 +96,7 @@ async function getData(): Promise<Product[]> {
             price: 1000,
             category: "Category 10",
             rating: 4.5,
-            monthlySales: 500,
+            monthlySales: 108,
             status: "Active"
         },
         {
@@ -105,8 +105,8 @@ async function getData(): Promise<Product[]> {
             price: 1100,
             category: "Category 11",
             rating: 4.5,
-            monthlySales: 500,
-            status: "Active"
+            monthlySales: 199,
+            status: "Suspended"
         },
         {
             id: "12",
@@ -114,8 +114,8 @@ async function getData(): Promise<Product[]> {
             price: 1200,
             category: "Category 12",
             rating: 4.5,
-            monthlySales: 500,
-            status: "Active"
+            monthlySales: 53,
+            status: "Inactive"
         },
     ]
 }

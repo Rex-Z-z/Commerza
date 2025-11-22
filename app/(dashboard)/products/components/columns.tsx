@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
 export type Product = {
     id: string
     name: string
@@ -28,8 +29,8 @@ export const columns: ColumnDef<Product>[] = [
         header: ({ table }) => (
             <Checkbox
                 checked={
-                table.getIsAllPageRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && "indeterminate")
+                    table.getIsAllPageRowsSelected() ||
+                    (table.getIsSomePageRowsSelected() && "indeterminate")
                 }
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
@@ -49,7 +50,7 @@ export const columns: ColumnDef<Product>[] = [
         accessorKey: "name",
         header: ({ column }) => {
             return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Name
                     <ChevronsUpDown  />
                 </Button>
@@ -60,7 +61,7 @@ export const columns: ColumnDef<Product>[] = [
         accessorKey: "category",
         header: ({ column }) => {
             return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Category
                     <ChevronsUpDown  className="ml-2 h-4 w-4" />
                 </Button>
@@ -71,7 +72,7 @@ export const columns: ColumnDef<Product>[] = [
         accessorKey: "price",
         header: ({ column }) => {
             return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Price
                     <ChevronsUpDown  className="ml-2 h-4 w-4" />
                 </Button>
@@ -82,7 +83,7 @@ export const columns: ColumnDef<Product>[] = [
         accessorKey: "rating",
         header: ({ column }) => {
             return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Rating
                     <ChevronsUpDown  className="ml-2 h-4 w-4" />
                 </Button>
@@ -93,10 +94,25 @@ export const columns: ColumnDef<Product>[] = [
         accessorKey: "monthlySales",
         header: ({ column }) => {
             return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Monthly Sales
                     <ChevronsUpDown  className="ml-2 h-4 w-4" />
                 </Button>
+            )
+        },
+
+        cell: ({ row }) => {
+            const monthlySales = row.getValue("monthlySales") as Product["monthlySales"]
+
+            const badgeColor = monthlySales < 100 ? "bg-red-100 text-red-500" : "bg-green-100 text-green-500"
+
+            return (
+                <div className="flex flex-row gap-2">
+                    <div className="text-gray-500 w-12 truncate" title={monthlySales.toString() + "$"}>{monthlySales}$</div>
+                    <Badge className={`${badgeColor}`}>
+                        {monthlySales < 22 ? "4%" : monthlySales < 44 ? "1%" : monthlySales < 66 ? "3%" : monthlySales < 88 ? "8%" : monthlySales < 100 ? "29%" : monthlySales < 122 ? "34%" : monthlySales < 144 ? "45%" : monthlySales < 166 ? "22%" : monthlySales < 188 ? "16%" : monthlySales < 200 ? "56%" : "99%"}
+                    </Badge>
+                </div>
             )
         },
     },
@@ -104,10 +120,27 @@ export const columns: ColumnDef<Product>[] = [
         accessorKey: "status",
         header: ({ column }) => {
             return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Status
                     <ChevronsUpDown  className="ml-2 h-4 w-4" />
                 </Button>
+            )
+        },
+        
+        cell: ({ row }) => {
+            const status = row.getValue("status") as Product["status"]
+            
+            const variantMap = {
+                "Active": "bg-green-100 text-green-500",    
+                "Inactive": "bg-orange-100 text-orange-400",
+                "Pending": "bg-gray-100 text-gray-500",
+                "Suspended": "bg-red-100 text-red-500"
+            }
+
+            return (
+                <Badge className={`${variantMap[status]}`}>
+                    {status}
+                </Badge>
             )
         },
     },
