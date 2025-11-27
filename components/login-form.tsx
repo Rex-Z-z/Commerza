@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { useState } from "react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Eye, EyeClosed, LoaderCircleIcon } from 'lucide-react';
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Eye, EyeClosed, LoaderCircleIcon } from "lucide-react";
 import {
   Field,
   FieldDescription,
@@ -12,36 +12,36 @@ import {
   FieldLabel,
   FieldSeparator,
   FieldError,
-} from "@/components/ui/field"
+} from "@/components/ui/field";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from "@/components/ui/input-group"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/input-group";
+import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 
 type ErrorState = {
   email?: string;
   password?: string;
   general?: string;
-}
+};
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<ErrorState>({});
-  
+
   const router = useRouter();
 
   const togglePasswordVisibility = () => {
-      setShowPassword((prev) => !prev);
-  }
+    setShowPassword((prev) => !prev);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,31 +51,34 @@ export function LoginForm({
     // Get form data
     const form = e.currentTarget as HTMLFormElement;
     const formData = new FormData(form);
-    const email = formData.get('email');
-    const password = formData.get('password');
+    const email = formData.get("email");
+    const password = formData.get("password");
 
     // Simulate API call
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
 
       // --- SIMULATE A FAILED LOGIN ---
       // Change this to `true` to test the success case
-      const simulateError = false; 
+      const simulateError = false;
 
-      if (simulateError || email !== "test@example.com" || password !== "Password123") {
-        const errorData = { 
-            field: "general", 
-            message: "Invalid email or password. Please try again." 
+      if (
+        simulateError ||
+        email !== "test@example.com" ||
+        password !== "Password123"
+      ) {
+        const errorData = {
+          field: "general",
+          message: "Invalid email or password. Please try again.",
         };
-        
+
         setErrors({ general: errorData.message });
         throw new Error(errorData.message);
       }
-      
+
       // --- SIMULATE A SUCCESSFUL LOGIN ---
       console.log("Login successful!");
       router.push("/");
-
     } catch (error) {
       console.error(error);
       setIsLoading(false);
@@ -122,21 +125,25 @@ export function LoginForm({
                 </div>
                 <InputGroup>
                   <InputGroupInput
-                      id="password"
-                      name="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      required
-                      aria-invalid={!!errors.password || !!errors.general}
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    required
+                    aria-invalid={!!errors.password || !!errors.general}
                   />
                   <InputGroupAddon align="inline-end">
                     <InputGroupButton
-                        type="button"
-                        variant="ghost"
-                        className='hover:bg-transparent text-muted-foreground hover:text-foreground'
-                        onClick={togglePasswordVisibility}
+                      type="button"
+                      variant="ghost"
+                      className="hover:bg-transparent text-muted-foreground hover:text-foreground"
+                      onClick={togglePasswordVisibility}
                     >
-                        {showPassword ? <Eye className="size-4" /> : <EyeClosed className="size-4" />}
+                      {showPassword ? (
+                        <Eye className="size-4" />
+                      ) : (
+                        <EyeClosed className="size-4" />
+                      )}
                     </InputGroupButton>
                   </InputGroupAddon>
                 </InputGroup>
@@ -146,18 +153,22 @@ export function LoginForm({
               {/* Login button */}
               <Field>
                 <Button type="submit" disabled={isLoading}>
-                    {isLoading ? <LoaderCircleIcon className="animate-spin size-4" /> : null}
-                    {isLoading ? 'Logging in...' : 'Login'}
+                  {isLoading ? (
+                    <LoaderCircleIcon className="animate-spin size-4" />
+                  ) : null}
+                  {isLoading ? "Logging in..." : "Login"}
                 </Button>
                 {errors.general && (
-                    <FieldError className="text-center">{errors.general}</FieldError>
+                  <FieldError className="text-center">
+                    {errors.general}
+                  </FieldError>
                 )}
               </Field>
 
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
                 Or continue with
               </FieldSeparator>
-              
+
               {/* Socials */}
               <Field className="grid grid-cols-3 gap-4">
                 <Button variant="outline" type="button">
@@ -195,7 +206,7 @@ export function LoginForm({
           </form>
           <div className="bg-muted relative hidden md:block">
             <img
-              src="https://ui.shadcn.com/placeholder.svg"
+              src="https://images.pexels.com/photos/7792743/pexels-photo-7792743.jpeg"
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
@@ -207,5 +218,5 @@ export function LoginForm({
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  )
+  );
 }

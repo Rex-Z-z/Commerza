@@ -1,14 +1,9 @@
-import { cn } from "@/lib/utils"
-import { Card, CardContent } from "@/components/ui/card"
-import SignupUser from "./signup-user"
-import SignupCompany from "./signup-company"
-import { FieldDescription } from "@/components/ui/field"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
+import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import SignupUser from "./signup-user";
+// import SignupCompany from "./signup-company";
+import { FieldDescription } from "@/components/ui/field";
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function SignupForm({
   className,
@@ -19,10 +14,15 @@ export function SignupForm({
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <div className="p-6 md:p-8">
-            <Tabs defaultValue="user" className="w-full">
+            <SignupUser />
+            {/* <Tabs defaultValue="user" className="w-full">
               <TabsList className="mb-6 grid w-full h-10 grid-cols-2">
-                <TabsTrigger value="user" className="cursor-pointer">User</TabsTrigger>
-                <TabsTrigger value="company" className="cursor-pointer">Company</TabsTrigger>
+                <TabsTrigger value="user" className="cursor-pointer">
+                  User
+                </TabsTrigger>
+                <TabsTrigger value="company" className="cursor-pointer">
+                  Company
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="user">
@@ -32,13 +32,13 @@ export function SignupForm({
               <TabsContent value="company">
                 <SignupCompany />
               </TabsContent>
-            </Tabs>
+            </Tabs> */}
           </div>
-          
+
           {/* Photo */}
           <div className="bg-muted relative hidden md:block">
             <img
-              src="https://ui.shadcn.com/placeholder.svg"
+              src="https://images.pexels.com/photos/8117427/pexels-photo-8117427.jpeg"
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
@@ -50,5 +50,5 @@ export function SignupForm({
         and <a href="#">Privacy Policy</a>.
       </FieldDescription>
     </div>
-  )
+  );
 }
