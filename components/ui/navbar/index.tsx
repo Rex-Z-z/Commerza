@@ -12,6 +12,9 @@ import {
   MessageCircleQuestionMark,
   Menu,
   SidebarIcon,
+  ShoppingCart,
+  Heart,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "../separator";
@@ -53,8 +56,10 @@ const borderBottomLinkStyle =
 // --- Main Component ---
 const NavBar = ({
   page = "default",
+  login = false,
 }: {
   page?: "default" | "search" | "dashboard";
+  login?: boolean;
 }) => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -227,24 +232,58 @@ const NavBar = ({
 
         {page === "dashboard" && <div className="grow" />}
 
-        <div className="flex flex-row items-center gap-2">
-          <Button
-            variant="ghost"
-            size="lg"
-            className="text-white hover:text-white hover:bg-accent/20"
-            asChild
-          >
-            <a href="/signup"> Sign Up </a>
-          </Button>
-          <Button
-            variant="secondary"
-            size="lg"
-            className="hover:text-primary/90 hover:bg-gray-100"
-            asChild
-          >
-            <a href="/login"> Login </a>
-          </Button>
-        </div>
+        {/* Check if user is logged in */}
+        {login ? (
+          <div className="flex flex-row items-center gap-2">
+            <Button
+              variant="secondary"
+              className="hover:text-primary/90 hover:bg-gray-100"
+            >
+              Start Selling
+              <Store />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white"
+            >
+              <ShoppingCart />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white"
+            >
+              <Heart />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white"
+            >
+              <Bell />
+            </Button>
+          </div>
+        ):(
+          <div className="flex flex-row items-center gap-2">
+            <Button
+              variant="ghost"
+              size="lg"
+              className="text-white hover:text-white hover:bg-accent/20"
+              asChild
+            >
+              <a href="/signup"> Sign Up </a>
+            </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="hover:text-primary/90 hover:bg-gray-100"
+              asChild
+            >
+              <a href="/login"> Login </a>
+            </Button>
+          </div>
+        )}
       </div>
 
       <div

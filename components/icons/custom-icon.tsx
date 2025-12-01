@@ -100,5 +100,4 @@ const VerifyIdentityIcon = () => (
   </svg>
 );
 
-// export { DashboardIcon, BoxIcon, DollarIcon };
 export { DashboardIcon, BoxIcon, DollarIcon, VerifyIdentityIcon };

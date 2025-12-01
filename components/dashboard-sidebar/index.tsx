@@ -3,9 +3,7 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard,
   Package,
-  DollarSign,
   Bell,
   Settings,
   Headset,
@@ -25,16 +23,10 @@ import { NavMain } from "./nav-main";
 import {
   DashboardIcon,
   DollarIcon,
-  VerifyIdentityIcon,
 } from "../icons/custom-icon";
 
 const baseData = {
   navMain: [
-    {
-      title: "Verify",
-      url: "/verify-company",
-      icon: VerifyIdentityIcon,
-    },
     {
       title: "Dashboard",
       url: "/dashboard",
@@ -52,6 +44,10 @@ const baseData = {
         {
           title: "Order",
           url: "/products/order",
+        },
+        {
+          title: "Cart",
+          url: "/products/cart",
         },
         {
           title: "Wishlist",

@@ -26,7 +26,7 @@ export default async function DashboardLayout({
     <html lang="en">
       <body className="antialiased">
         <SidebarProvider defaultOpen={defaultOpen} className="flex flex-col">
-          <NavBar page="dashboard" />
+          <NavBar page="dashboard" login={true} />
           <div className='[--header-height:calc(--spacing(18))]'>
             <div className="flex flex-1">
               <DashboardSidebar />
