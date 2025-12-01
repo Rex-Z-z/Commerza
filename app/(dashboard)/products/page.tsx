@@ -1,123 +1,118 @@
-"use client"
-
 import React from 'react'
-import { Ellipsis, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { columns, Product } from "./components/columns"
+import { columns, Product } from "./components/columns-product"
 import { DataTable } from './components/data-table';
 
 async function getData(): Promise<Product[]> {
     return [
         {
             id: "1",
-            name: "Product 1",
-            price: 100,
-            category: "Category 1",
-            rating: 4.5,
-            monthlySales: 157,
+            name: "Wireless Bluetooth Earbuds",
+            price: 29.99,
+            category: "Electronics",
+            rating: 4.1,
+            monthlySales: 1572,
             status: "Active"
         },
         {
             id: "2",
-            name: "Product 2",
-            price: 200,
-            category: "Category 2",
-            rating: 4.5,
-            monthlySales: 88,
-            status: "Inactive"
+            name: "Ergonomic Office Chair",
+            price: 149.0,
+            category: "Furniture",
+            rating: 3.8,
+            monthlySales: 214,
+            status: "Active"
         },
         {
             id: "3",
-            name: "Product 3",
-            price: 300,
-            category: "Category 3",
-            rating: 4.5,
-            monthlySales: 121,
-            status: "Suspended"
+            name: "Stainless Steel Water Bottle 1L",
+            price: 18.5,
+            category: "Home & Kitchen",
+            rating: 4.9,
+            monthlySales: 1086,
+            status: "Active"
         },
         {
             id: "4",
-            name: "Product 4",
-            price: 400,
-            category: "Category 4",
-            rating: 4.5,
-            monthlySales: 17,
+            name: "4K Ultra HD Smart TV — 55 inch",
+            price: 449.99,
+            category: "Electronics",
+            rating: 2.7,
+            monthlySales: 93,
             status: "Pending"
         },
         {
             id: "5",
-            name: "Product 5",
-            price: 500,
-            category: "Category 5",
-            rating: 4.5,
-            monthlySales: 193,
+            name: "Running Shoes (Men)",
+            price: 69.95,
+            category: "Sportswear",
+            rating: 3.2,
+            monthlySales: 634,
             status: "Inactive"
         },
         {
             id: "6",
-            name: "Product 6",
-            price: 600,
-            category: "Category 6",
-            rating: 4.5,
-            monthlySales: 34,
+            name: "LED Desk Lamp with USB Port",
+            price: 24.99,
+            category: "Home & Office",
+            rating: 4.4,
+            monthlySales: 372,
             status: "Active"
         },
         {
             id: "7",
-            name: "Product 7",
-            price: 700,
-            category: "Category 7",
-            rating: 4.5,
-            monthlySales: 6,
-            status: "Pending"
+            name: "Cotton T-Shirt (Pack of 3)",
+            price: 22.99,
+            category: "Clothing",
+            rating: 1.9,
+            monthlySales: 815,
+            status: "Active"
         },
         {
             id: "8",
-            name: "Product 8",
-            price: 800,
-            category: "Category 8",
-            rating: 4.5,
-            monthlySales: 145,
+            name: "Portable Power Bank 20,000mAh",
+            price: 35.0,
+            category: "Electronics",
+            rating: 5.0,
+            monthlySales: 421,
             status: "Inactive"
         },
         {
             id: "9",
-            name: "Product 9",
-            price: 900,
-            category: "Category 9",
-            rating: 4.5,
-            monthlySales: 72,
+            name: "Non-stick Frying Pan 28cm",
+            price: 27.5,
+            category: "Kitchen",
+            rating: 3.5,
+            monthlySales: 289,
             status: "Active"
         },
         {
             id: "10",
-            name: "Product 10",
-            price: 1000,
-            category: "Category 10",
-            rating: 4.5,
-            monthlySales: 108,
+            name: "Mechanical Keyboard (RGB)",
+            price: 79.99,
+            category: "Computer Accessories",
+            rating: 4.8,
+            monthlySales: 156,
             status: "Active"
         },
         {
             id: "11",
-            name: "Product 11",
-            price: 1100,
-            category: "Category 11",
-            rating: 4.5,
-            monthlySales: 199,
+            name: "Yoga Mat (10mm Thick)",
+            price: 19.99,
+            category: "Fitness",
+            rating: 2.4,
+            monthlySales: 962,
             status: "Suspended"
         },
         {
             id: "12",
-            name: "Product 12",
-            price: 1200,
-            category: "Category 12",
-            rating: 4.5,
-            monthlySales: 53,
+            name: "Pet Grooming Brush",
+            price: 12.49,
+            category: "Pet Supplies",
+            rating: 3.1,
+            monthlySales: 187,
             status: "Inactive"
-        },
-    ]
+        }
+    ];
 }
 
 const page = async () => {
