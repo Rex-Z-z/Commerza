@@ -119,7 +119,8 @@ const page = async () => {
     const data = await getData()
 
     return (
-        <div>
+        <div className="flex flex-col gap-5">
+            <h1 className="text-2xl font-bold tracking-tight">All Product</h1>
             <DataTable columns={columns} data={data} />
         </div>
     )

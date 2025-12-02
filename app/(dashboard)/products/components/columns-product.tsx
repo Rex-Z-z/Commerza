@@ -111,10 +111,9 @@ export const columns: ColumnDef<Product>[] = [
             )
         },
         cell: ({ row }) => {
-            const price = row.getValue("price") as number
-            return (
-                <div className="text-gray-500 w-16 truncate" title={price.toString() + "$"}>{price}$</div>
-            )
+            const price = parseFloat(row.getValue("price"))
+            const formatted = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", }).format(price)
+            return (<div className="text-gray-500 w-16 truncate" title={formatted}>{formatted}</div>)
         },
     },
     {
@@ -152,13 +151,13 @@ export const columns: ColumnDef<Product>[] = [
         },
 
         cell: ({ row }) => {
-            const monthlySales = row.getValue("monthlySales") as Product["monthlySales"]
-
+            const monthlySales = parseFloat(row.getValue("monthlySales"))
+            const formatted = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", }).format(monthlySales)
             const badgeColor = monthlySales < 100 ? "bg-red-100 text-red-500" : "bg-green-100 text-green-500"
 
             return (
                 <div className="flex flex-row gap-2">
-                    <div className="text-gray-500 w-12 truncate" title={monthlySales.toString() + "$"}>{monthlySales}$</div>
+                    <div className="text-gray-500 w-18 truncate" title={formatted}>{formatted}</div>
                     <Badge className={`${badgeColor}`}>
                         {monthlySales < 22 ? "4%" : monthlySales < 44 ? "1%" : monthlySales < 66 ? "3%" : monthlySales < 88 ? "8%" : monthlySales < 100 ? "29%" : monthlySales < 122 ? "34%" : monthlySales < 144 ? "45%" : monthlySales < 166 ? "22%" : monthlySales < 188 ? "16%" : monthlySales < 200 ? "56%" : "99%"}
                     </Badge>
@@ -197,8 +196,6 @@ export const columns: ColumnDef<Product>[] = [
     {
         id: "actions",
         cell: ({ row }) => {
-            const payment = row.original
-        
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>

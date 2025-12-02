@@ -22,14 +22,14 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Ellipsis, Plus, SlidersHorizontal } from "lucide-react"
+import { Ellipsis, SlidersHorizontal } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
 }
 
-export function DataTable<TData, TValue>({
+export function OrderDataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
@@ -53,29 +53,31 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="flex flex-col gap-4">
-            <div className='flex flex-row justify-between'>
-                <div className='flex flex-row gap-2'>
+            <div className='flex flex-row justify-between items-center'>
+                <div className='flex flex-row gap-2 w-full'>
                     <Input 
-                        value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+                        // Filter by Product Name
+                        value={(table.getColumn("productName")?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
-                            table.getColumn("name")?.setFilterValue(event.target.value)
+                            table.getColumn("productName")?.setFilterValue(event.target.value)
                         }
-                        placeholder='Search' 
-                        className='w-xs'
+                        placeholder='Search orders by product...' 
+                        className='max-w-xs'
                     />
                     <Button variant='outline' size='icon' className='border-2'>
-                        <SlidersHorizontal className="size-4 text-gray-500"/>
+                        <SlidersHorizontal className='size-4 text-gray-500' />
                     </Button>
                 </div>
                 
-                <Button>
-                    New Product
-                    <Plus className='size-4'/>
-                </Button>
+                <div className="flex gap-2">
+                     <Button variant='outline' size='icon' className='border'>
+                        <Ellipsis className='size-5 text-gray-500' />
+                    </Button>
+                </div>
             </div>
 
             <div>
-                <div className="overflow-hidden rounded-md border">
+                <div className="rounded-md border bg-white">
                     <Table>
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -99,7 +101,7 @@ export function DataTable<TData, TValue>({
                             {table.getRowModel().rows?.length ? (
                                 table.getRowModel().rows.map((row) => (
                                     <TableRow
-                                        className="cursor-pointer font-medium"
+                                        className="cursor-pointer hover:bg-gray-50/50"
                                         key={row.id}
                                         data-state={row.getIsSelected() && "selected"}
                                     >
@@ -113,7 +115,7 @@ export function DataTable<TData, TValue>({
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                                        No results.
+                                        No orders found.
                                     </TableCell>
                                 </TableRow>
                             )}
