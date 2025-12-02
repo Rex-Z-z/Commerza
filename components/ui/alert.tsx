@@ -249,7 +249,7 @@ function AlertContent({ className, ...props }: React.HTMLAttributes<HTMLParagrap
   return (
     <div
       data-slot="alert-content"
-      className={cn('space-y-2 [&_[data-slot=alert-title]]:font-semibold', className)}
+      className={cn('space-y-2 **:data-[slot=alert-title]:font-semibold', className)}
       {...props}
     />
   );
