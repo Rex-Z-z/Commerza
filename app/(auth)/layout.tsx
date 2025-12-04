@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "A modern e-commerce application built with Next.js and Tailwind CSS",
 };
 
-export default async function MainLayout({
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -17,11 +17,14 @@ export default async function MainLayout({
   const user = await getCurrentUser();
 
   return (
-    <div className="relative flex min-h-screen flex-col">
-      {/* Pass the user object to NavBar */}
-      <NavBar user={user} />
-      <main className="flex-1">{children}</main>
-      {/* Footer... */}
-    </div>
+    <html lang="en">
+      <body className="antialiased">
+        <div className="relative flex min-h-screen flex-col">
+          {/* Pass the user object to NavBar */}
+          <NavBar user={user} />
+          <main className="flex-1">{children}</main>
+        </div>
+      </body>
+    </html>
   );
 }

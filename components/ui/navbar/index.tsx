@@ -7,10 +7,10 @@ import BottomSection from "./bottom-section";
 
 const NavBar = ({
   page = "default",
-  user = null, // Changed from login boolean to user object
+  user = null,
 }: {
   page?: "default" | "search" | "dashboard";
-  user?: any; // Receive user data
+  user?: any;
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 

@@ -2,6 +2,7 @@
 'use server'
 
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 
 export async function loginAction(prevState: any, formData: FormData) {
   const email = formData.get('email') as string
@@ -24,15 +25,12 @@ export async function loginAction(prevState: any, formData: FormData) {
       return { error: data.message || "Login failed" };
     }
 
-    // Extract token from your backend response structure
-    // Based on your Java code: ApiResponse contains 'payload', which contains 'token'
     const token = data.payload?.token; 
 
     if (!token) {
       return { error: "Token not received from server" };
     }
 
-    // Store token in HttpOnly cookie
     const cookieStore = await cookies();
     cookieStore.set('session_token', token, {
       httpOnly: true,
@@ -48,4 +46,32 @@ export async function loginAction(prevState: any, formData: FormData) {
     console.error("Login error:", error);
     return { error: "Network error. Please try again." };
   }
+}
+
+export async function logoutAction() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('session_token')?.value;
+
+  if (token) {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+      
+      // Call backend to invalidate token version (Logout All)
+      await fetch(`${apiUrl}/auth/logout-all`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+    } catch (error) {
+      console.error("Backend logout error:", error);
+      // Continue to delete cookie even if backend fails
+    }
+  }
+
+  // Delete the cookie
+  cookieStore.delete('session_token');
+  
+  // Redirect to login page
+  redirect('/login');
 }
