@@ -40,57 +40,55 @@ const wishlistData = [
 
 const WishlistButton = () => {
     return (
-        <div>
-            <HoverCard openDelay={200} closeDelay={100}>
-                <HoverCardTrigger asChild>
-                    <Button variant="outline" size="icon" className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white">
-                        <Heart />
-                    </Button>
-                </HoverCardTrigger>
-                
-                <HoverCardContent align="end" className='w-100 p-2'>
-                    <div className='p-2'>
-                        <span className='text-xl font-semibold'>Your Wishlist</span>
-                    </div>
+        <HoverCard openDelay={200} closeDelay={100}>
+            <HoverCardTrigger asChild>
+                <Button variant="outline" size="icon" className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white">
+                    <Heart />
+                </Button>
+            </HoverCardTrigger>
+            
+            <HoverCardContent align="end" className='w-120 p-2'>
+                <div className='p-2'>
+                    <span className='text-xl font-semibold'>Your Wishlist</span>
+                </div>
 
-                    <Separator className='my-1.5'/>
+                <Separator className='my-1.5'/>
 
-                    <ScrollArea className="h-72">
-                        <div className='flex flex-col gap-1.5 pr-3'>
-                            {wishlistData.map((item) => (
-                                <a key={item.id} href='#' className='flex flex-row justify-between p-1.5 hover:bg-gray-100 rounded-md transition-colors'>
-                                    <div className='flex flex-row gap-2'>
-                                        <Avatar className="h-20 w-20 rounded-sm">
-                                            <AvatarImage
-                                                src={item.image}
-                                                alt={item.name}
-                                            />
-                                            <AvatarFallback className="rounded-lg">P</AvatarFallback>
-                                        </Avatar>
-                                        <div className='flex flex-col py-2 gap-0.5'>
-                                            <span className='text-[15px] font-medium'>{item.name}</span>
-                                            <span className='text-xs text-gray-400 mb-0.5'>{item.variant}</span>
-                                            <span className='text-sm font-medium text-gray-700'>{item.price}</span>
-                                        </div>
+                <ScrollArea className="h-72">
+                    <div className='flex flex-col gap-1.5 pr-3'>
+                        {wishlistData.map((item) => (
+                            <a key={item.id} href='#' className='flex flex-row justify-between p-1.5 hover:bg-gray-100 rounded-md transition-colors'>
+                                <div className='flex flex-row gap-2'>
+                                    <Avatar className="h-20 w-20 rounded-sm">
+                                        <AvatarImage
+                                            src={item.image}
+                                            alt={item.name}
+                                        />
+                                        <AvatarFallback className="rounded-lg">P</AvatarFallback>
+                                    </Avatar>
+                                    <div className='flex flex-col py-2 gap-0.5'>
+                                        <span className='text-[15px] font-medium'>{item.name}</span>
+                                        <span className='text-xs text-gray-400 mb-0.5'>{item.variant}</span>
+                                        <span className='text-sm font-medium text-gray-700'>{item.price}</span>
                                     </div>
-                                    <div className='flex items-center mr-2'>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                                            <HeartFillIcon className='size-5 text-red-500'/>
-                                        </Button>
-                                    </div>
-                                </a>
-                            ))}
-                        </div>
-                    </ScrollArea>
-
-                    <Separator className='my-1'/>
-
-                    <div className='flex flex-row justify-end'>
-                        <Button variant="link" size="sm">View more</Button>
+                                </div>
+                                <div className='flex items-center mr-2'>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 group">
+                                        <HeartFillIcon className='size-5 text-red-500 group-hover:text-red-700'/>
+                                    </Button>
+                                </div>
+                            </a>
+                        ))}
                     </div>
-                </HoverCardContent>
-            </HoverCard>
-        </div>
+                </ScrollArea>
+
+                <Separator className='my-1'/>
+
+                <div className='flex flex-row justify-end'>
+                    <Button variant="link" size="sm">View more</Button>
+                </div>
+            </HoverCardContent>
+        </HoverCard>
     )
 }
 
