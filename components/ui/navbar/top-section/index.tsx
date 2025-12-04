@@ -16,6 +16,7 @@ import { useScroll } from "@/app/context/scroll-context";
 import ProfileButton from "./profile-button";
 import NotificationButton from "./notification-button";
 import WishlistButton from "./wishlist-button";
+import CartButton from "./cart-button";
 
 interface TopSectionProps {
   page?: "default" | "search" | "dashboard";
@@ -36,7 +37,7 @@ const TopSection = ({ page = "default", login = false, isScrolled = false }: Top
             {/* Logo */}
             <div className="flex flex-row gap-4">
                 <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-                <Logo />
+                    <Logo />
                 </a>
 
                 {page === "dashboard" && (
@@ -67,9 +68,7 @@ const TopSection = ({ page = "default", login = false, isScrolled = false }: Top
                     </Button>
                 )}
                 
-                <Button variant="outline" size="icon" className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white">
-                    <ShoppingCart />
-                </Button>
+                <CartButton />
                 
                 <WishlistButton />
                 
