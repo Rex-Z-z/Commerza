@@ -121,7 +121,7 @@ const NotificationButton = () => {
                             <div className="flex flex-col gap-2 p-3">
                                 {notificationData.map((item) => (
                                     <a href="/notification" key={item.id}>
-                                        <Item variant="muted" className='hover:bg-gray-200/60'>
+                                        <Item variant="muted" className='hover:bg-gray-200/60 p-2.5'>
                                             <ItemMedia variant="icon" className='mt-0.5'>
                                                 {item.icon}
                                             </ItemMedia>

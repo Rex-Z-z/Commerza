@@ -16,7 +16,7 @@ const ProfileButton = () => (
         <HoverCardContent align="end" className='p-2'>
             <Button variant="ghost" size="lg" className='w-full justify-start py-7' asChild>
                 <a href="/profile" className="flex gap-2 items-center cursor-pointer">
-                    <Avatar className="h-10 w-10 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 rounded-full">
+                    <Avatar className="h-10 w-10 rounded-full">
                         <AvatarImage
                         src="https://github.com/shadcn.png"
                         alt="Chou Seangly"
