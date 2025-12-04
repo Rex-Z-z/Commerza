@@ -7,8 +7,6 @@ import {
   Store,
   ShoppingCart,
   Heart,
-  Bell,
-  UserRound,
   SidebarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,10 +14,8 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Logo } from "@/components/icons/custom-icon";
 import { useScroll } from "@/app/context/scroll-context";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../../dropdown-menu";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../../hover-card";
-import { Avatar, AvatarFallback, AvatarImage } from "../../avatar";
 import ProfileButton from "./profile-button";
+import NotificationButton from "./notification-button";
 
 interface TopSectionProps {
   page?: "default" | "search" | "dashboard";
@@ -79,9 +75,7 @@ const TopSection = ({ page = "default", login = false, isScrolled = false }: Top
                     <Heart />
                 </Button>
                 
-                <Button variant="outline" size="icon" className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white">
-                    <Bell />
-                </Button>
+                <NotificationButton />
 
                 {page === "default" && (
                     <ProfileButton />
