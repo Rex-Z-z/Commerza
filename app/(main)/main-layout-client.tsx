@@ -24,12 +24,12 @@ export default function MainLayoutClient({
       <SidebarProvider defaultOpen={false} className="flex flex-col">
         {isSearchPage ? (
           <>
-            <NavBar page="search" />
+            <NavBar page="search"/>
             {children}
           </>
         ) : (
           <ScrollProvider>
-            <NavBar page="default" />
+            <NavBar page="default" login={true} />
             {children}
           </ScrollProvider>
         )}
