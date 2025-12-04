@@ -7,7 +7,7 @@ import { Heart } from 'lucide-react'
 import { HeartFillIcon } from '@/components/icons/custom-icon'
 import { ScrollArea } from "@/components/ui/scroll-area"
 
-const favoriteData = [
+const wishlistData = [
     {
         id: 1,
         name: "Wireless Headset",
@@ -38,7 +38,7 @@ const favoriteData = [
     }
 ]
 
-const FavoriteButton = () => {
+const WishlistButton = () => {
     return (
         <div>
             <HoverCard openDelay={200} closeDelay={100}>
@@ -49,10 +49,16 @@ const FavoriteButton = () => {
                 </HoverCardTrigger>
                 
                 <HoverCardContent align="end" className='w-100 p-2'>
+                    <div className='p-2'>
+                        <span className='text-xl font-semibold'>Your Wishlist</span>
+                    </div>
+
+                    <Separator className='my-1.5'/>
+
                     <ScrollArea className="h-72">
                         <div className='flex flex-col gap-1.5 pr-3'>
-                            {favoriteData.map((item) => (
-                                <a key={item.id} href='#' className='flex flex-row justify-between p-1 hover:bg-gray-100 rounded-md transition-colors'>
+                            {wishlistData.map((item) => (
+                                <a key={item.id} href='#' className='flex flex-row justify-between p-1.5 hover:bg-gray-100 rounded-md transition-colors'>
                                     <div className='flex flex-row gap-2'>
                                         <Avatar className="h-20 w-20 rounded-sm">
                                             <AvatarImage
@@ -88,4 +94,4 @@ const FavoriteButton = () => {
     )
 }
 
-export default FavoriteButton
+export default WishlistButton

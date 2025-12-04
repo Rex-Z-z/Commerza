@@ -12,6 +12,7 @@ import {
 import { Button } from '../../button'
 import { Bell, ShieldAlertIcon, InfoIcon } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '../../avatar'
+import { Separator } from '../../separator'
 
 const notificationData = [
     {
@@ -107,8 +108,8 @@ const NotificationButton = () => {
             </HoverCardTrigger>
             
             <HoverCardContent align="end" className='w-96 p-0'>
-                <Tabs defaultValue="notification" className="flex flex-col h-[400px] w-full">
-                    <div className="p-3 border-b">
+                <Tabs defaultValue="notification" className="flex flex-col w-full">
+                    <div className="p-2 border-b">
                         <TabsList className='w-full'>
                             <TabsTrigger value="notification" className="flex-1">Notification</TabsTrigger>
                             <TabsTrigger value="messages" className="flex-1">Messages</TabsTrigger>
@@ -117,11 +118,15 @@ const NotificationButton = () => {
                     
                     {/* Notification */}
                     <TabsContent value="notification" className='flex-1 overflow-hidden mt-0'>
-                        <ScrollArea className="h-full">
-                            <div className="flex flex-col gap-2 p-3">
+                        <div className="flex justify-end items-center">
+                            <Button variant="link" size="sm" className='px-0 py-0 mr-4'>Mark read all</Button>
+                        </div>
+                        
+                        <ScrollArea className="h-[300px]">
+                            <div className="flex flex-col gap-1.5 p-2">
                                 {notificationData.map((item) => (
                                     <a href="/notification" key={item.id}>
-                                        <Item variant="muted" className='hover:bg-gray-200/60 p-2.5'>
+                                        <Item variant="muted" className='hover:bg-gray-200/60 p-2'>
                                             <ItemMedia variant="icon" className='mt-0.5'>
                                                 {item.icon}
                                             </ItemMedia>
@@ -136,14 +141,24 @@ const NotificationButton = () => {
                                 ))}
                             </div>
                         </ScrollArea>
+                        
+                        <Separator className='my-1'/>
+                        
+                        <div className="pb-1.5">
+                            <Button variant="link" className="w-full">See all notifications</Button>
+                        </div>
                     </TabsContent>
                     
                     {/* Messages */}
                     <TabsContent value="messages" className='flex-1 overflow-hidden mt-0'>
-                        <ScrollArea className="h-full">
+                        <div className="flex justify-end items-center">
+                            <Button variant="link" size="sm" className='px-0 py-0 mr-4'>Mark read all</Button>
+                        </div>
+                        
+                        <ScrollArea className="h-[300px]">
                             <div className='flex flex-col gap-1 p-3'>
                                 {messageData.map((msg) => (
-                                    <div key={msg.id} className='flex flex-row hover:bg-gray-100/60 rounded-md p-2 transition-colors'>
+                                    <div key={msg.id} className='flex flex-row hover:bg-gray-200/60 rounded-md p-2 transition-colors'>
                                         <a href='/notification' className='w-full flex flex-row gap-2'>
                                             <Avatar className="h-10 w-10 rounded-full">
                                                 <AvatarImage src={msg.avatar} alt={msg.name} />
@@ -161,8 +176,13 @@ const NotificationButton = () => {
                                 ))}
                             </div>
                         </ScrollArea>
-                    </TabsContent>
+                        
+                        <Separator className='my-1'/>
 
+                        <div className="pb-1.5">
+                            <Button variant="link" className="w-full">See all notifications</Button>
+                        </div>
+                    </TabsContent>
                 </Tabs>
             </HoverCardContent>
         </HoverCard>

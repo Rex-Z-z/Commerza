@@ -15,7 +15,7 @@ import { Logo } from "@/components/icons/custom-icon";
 import { useScroll } from "@/app/context/scroll-context";
 import ProfileButton from "./profile-button";
 import NotificationButton from "./notification-button";
-import FavoriteButton from "./favorite-button";
+import WishlistButton from "./wishlist-button";
 
 interface TopSectionProps {
   page?: "default" | "search" | "dashboard";
@@ -71,7 +71,7 @@ const TopSection = ({ page = "default", login = false, isScrolled = false }: Top
                     <ShoppingCart />
                 </Button>
                 
-                <FavoriteButton />
+                <WishlistButton />
                 
                 <NotificationButton />
 
