@@ -29,7 +29,7 @@ export default function MainLayoutClient({
           </>
         ) : (
           <ScrollProvider>
-            <NavBar page="default" login={true} />
+            <NavBar page="default" login={false} />
             {children}
           </ScrollProvider>
         )}

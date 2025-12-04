@@ -7,10 +7,10 @@ import BottomSection from "./bottom-section";
 
 const NavBar = ({
   page = "default",
-  login = false,
+  user = null, // Changed from login boolean to user object
 }: {
   page?: "default" | "search" | "dashboard";
-  login?: boolean;
+  user?: any; // Receive user data
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -27,7 +27,7 @@ const NavBar = ({
   return (
     <div className={cn(`flex flex-col bg-[#35B9EC] border-b border-transparent sticky top-0 z-20`, isScrolled ? "shadow-md" : "", page === "dashboard" ? "" : "h-(--header-height)")}
     >
-      <TopSection page={page} login={login} isScrolled={isScrolled} />
+      <TopSection page={page} user={user} isScrolled={isScrolled} />
       <BottomSection page={page} isScrolled={isScrolled} />
     </div>
   );
