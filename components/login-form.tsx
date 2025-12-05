@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { loginAction } from "@/app/actions/auth"; // Import the server action
+import { loginAction } from "@/app/actions/auth";
 
 type ErrorState = {
   email?: string;
@@ -51,7 +51,6 @@ export function LoginForm({
     const formData = new FormData(form);
 
     try {
-      // Call the Server Action instead of direct fetch
       const result = await loginAction(null, formData);
 
       if (result?.error) {
@@ -71,8 +70,6 @@ export function LoginForm({
       });
       setIsLoading(false);
     }
-    // Note: We don't set isLoading(false) on success immediately 
-    // to prevent the button from flashing before the redirect happens.
   };
 
   return (
@@ -106,8 +103,9 @@ export function LoginForm({
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
+                  {/* UPDATED LINK HERE */}
                   <a
-                    href="#"
+                    href="/forgot-password"
                     className="ml-auto text-sm underline-offset-2 hover:underline text-gray-500"
                   >
                     Forgot your password?
