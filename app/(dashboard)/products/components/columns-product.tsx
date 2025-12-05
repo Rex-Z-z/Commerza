@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Rating, RatingButton } from "@/components/ui/shadcn-io/rating"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Rating } from "@/components/ui/rating"
 
 export type Product = {
     id: string
@@ -127,14 +127,9 @@ export const columns: ColumnDef<Product>[] = [
             )
         },
         cell: ({ row }) => {
-            const rating = Math.round(row.getValue("rating") as number * 2) / 2
             return (
-                <div className="flex flex-col">
-                    <Rating value={rating} readOnly>
-                        {Array.from({ length: 5 }).map((_, index) => (
-                            <RatingButton key={index} className="text-yellow-500 size-4.5" />
-                        ))}
-                    </Rating>
+                <div className="min-w-[120px]">
+                    <Rating size="sm" rating={row.getValue("rating")} showValue={true} className="text-yellow-500 size-4.5" />
                 </div>
             )
         },
