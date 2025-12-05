@@ -1,9 +1,8 @@
 'use client'
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ChevronsUpDown , MoreHorizontal, Eye, Pencil, Trash, } from "lucide-react"
+import { ChevronsUpDown, ChevronUp, ChevronDown, MoreHorizontal, Eye, Pencil, Trash, Package, } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +31,7 @@ export type Product = {
     name: string
     price: number
     category: string
+    subcategory: string
     rating: number
     monthlySales: number
     status: "Active" | "Inactive" | "Pending" | "Suspended"
@@ -67,23 +67,31 @@ export const columns: ColumnDef<Product>[] = [
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="h-8">
                     Name
-                    <ChevronsUpDown  />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
             )
         },
         cell: ({ row }) => {
             const name = row.getValue("name") as string
+            const subcategory = row.original.subcategory
             return (
                 <div className="ml-3 flex items-center gap-3">
                     <Avatar className="h-9 w-9 rounded-lg">
                         <AvatarImage alt={name} />
                         <AvatarFallback className="rounded-lg">
-                            {name.slice(0, 2).toUpperCase()}
+                            {/* {name.slice(0, 2).toUpperCase()} */}
+                            <Package className="size-4.5 text-gray-400"/>
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
                         <div>{name}</div>
-                        <div className="text-xs text-gray-400 font-medium">{name}</div>
+                        <div className="text-xs text-gray-400 font-medium">{subcategory}</div>
                     </div>
                 </div>
             )
@@ -95,8 +103,20 @@ export const columns: ColumnDef<Product>[] = [
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Category
-                    <ChevronsUpDown  className="ml-2 h-4 w-4" />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
+            )
+        },
+        cell: ({ row }) => {
+            const category = row.getValue("category") as string
+            return (
+                <div className="w-28 truncate" title={category}>{category}</div>
             )
         },
     },
@@ -106,14 +126,22 @@ export const columns: ColumnDef<Product>[] = [
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Price
-                    <ChevronsUpDown  className="ml-2 h-4 w-4" />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
             )
         },
         cell: ({ row }) => {
             const price = parseFloat(row.getValue("price"))
             const formatted = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", }).format(price)
-            return (<div className="text-gray-500 w-16 truncate" title={formatted}>{formatted}</div>)
+            return (
+                <div className="text-gray-500 w-16 truncate" title={formatted}>{formatted}</div>
+            )
         },
     },
     {
@@ -122,13 +150,19 @@ export const columns: ColumnDef<Product>[] = [
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Rating
-                    <ChevronsUpDown  className="ml-2 h-4 w-4" />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
             )
         },
         cell: ({ row }) => {
             return (
-                <div className="min-w-[120px]">
+                <div className="min-w-[130px]">
                     <Rating size="sm" rating={row.getValue("rating")} showValue={true} className="text-yellow-500 size-4.5" />
                 </div>
             )
@@ -140,7 +174,13 @@ export const columns: ColumnDef<Product>[] = [
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Monthly Sales
-                    <ChevronsUpDown  className="ml-2 h-4 w-4" />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
             )
         },
@@ -166,7 +206,13 @@ export const columns: ColumnDef<Product>[] = [
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Status
-                    <ChevronsUpDown  className="ml-2 h-4 w-4" />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
             )
         },

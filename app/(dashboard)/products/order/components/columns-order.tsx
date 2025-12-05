@@ -1,7 +1,7 @@
 'use client'
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowRight, ChevronsUpDown } from "lucide-react"
+import { ArrowRight, ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -9,7 +9,7 @@ import { VisaIcon, MastercardIcon, PayPalIcon, KHQRIcon } from "@/components/ico
 
 export type Order = {
     id: string
-    customer: {
+    user: {
         name: string
         email: string
         avatar?: string
@@ -55,17 +55,24 @@ const formatDate = (dateString: string) => {
 
 export const columns: ColumnDef<Order>[] = [
     {
-        accessorKey: "customer",
+        accessorKey: "user.name",
+        id: "user",
         header: ({ column }) => {
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="h-8">
                     Customer
-                    <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
             )
         },
         cell: ({ row }) => {
-            const customer = row.original.customer
+            const customer = row.original.user
             return (
                 <div className="ml-3 flex items-center gap-3">
                     <Avatar className="h-9 w-9 rounded-lg">
@@ -88,7 +95,13 @@ export const columns: ColumnDef<Order>[] = [
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Product Name
-                    <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
             )
         },
@@ -100,7 +113,13 @@ export const columns: ColumnDef<Order>[] = [
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Date
-                    <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
             )
         },
@@ -120,7 +139,13 @@ export const columns: ColumnDef<Order>[] = [
             return (
                 <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
                     Total Amount
-                    <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    {column.getIsSorted() === "asc" ? (
+                    <ChevronUp className="ml-2 h-4 w-4" />
+                    ) : column.getIsSorted() === "desc" ? (
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                    ) : (
+                        <ChevronsUpDown className="ml-2 h-4 w-4" />
+                    )}
                 </Button>
             )
         },
