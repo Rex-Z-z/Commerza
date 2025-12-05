@@ -10,7 +10,7 @@ import {
   ItemTitle,
 } from "@/components/ui/item"
 import { Button } from '../../button'
-import { Bell, ShieldAlertIcon, InfoIcon } from 'lucide-react'
+import { Bell, ShieldAlertIcon, InfoIcon, UserRound } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '../../avatar'
 import { Separator } from '../../separator'
 import { cn } from '@/lib/utils'
@@ -132,8 +132,8 @@ const NotificationButton = () => {
                         <ScrollArea className="h-[300px]">
                             <div className="flex flex-col gap-1.5 p-2.5">
                                 {notificationData.map((item) => (
-                                    <a href="/notification" className='flex flex-row hover:bg-gray-200/60 rounded-md gap-1.5 p-2' key={item.id}>
-                                        <Item variant="muted" className='p-0'>
+                                    <a href="/notification" className='flex flex-row hover:bg-gray-100 rounded-md gap-1.5 p-2' key={item.id}>
+                                        <Item variant="muted" className='p-0 bg-transparent'>
                                             <ItemMedia variant="icon" className='mt-0.5'>
                                                 {item.icon}
                                                 {!item.read && (
@@ -168,14 +168,16 @@ const NotificationButton = () => {
                         <ScrollArea className="h-[300px]">
                             <div className='flex flex-col gap-1 p-2.5'>
                                 {messageData.map((msg) => (
-                                    <div key={msg.id} className='flex flex-row hover:bg-gray-200/60 rounded-md pl-1 pr-1 py-2 transition-colors'>
+                                    <div key={msg.id} className='flex flex-row hover:bg-gray-100 rounded-md pl-1 pr-1 py-2 transition-colors'>
                                         <a href='/notification' className='w-full flex flex-row gap-1.5'>
                                             <div className='flex items-center justify-center w-4'>
                                                 <Dot className={cn('size-2.5 text-red-500', msg.read && 'invisible')}/>
                                             </div>
                                             <Avatar className="h-10 w-10 mr-2.5 rounded-full">
                                                 <AvatarImage src={msg.avatar} alt={msg.name} />
-                                                <AvatarFallback className="rounded-lg">{msg.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                                <AvatarFallback className="rounded-lg">
+                                                    <UserRound className='size-5 text-gray-400'/>
+                                                </AvatarFallback>
                                             </Avatar>
                                             <div className="grid flex-1 gap-1 text-left text-sm leading-tight">
                                                 <span className="truncate text-md font-medium">{msg.name}</span>

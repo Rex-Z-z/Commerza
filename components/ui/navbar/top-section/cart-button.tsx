@@ -1,10 +1,12 @@
-import React from 'react'
+import { useState } from 'react'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../hover-card'
 import { Button } from '../../button'
 import { ShoppingCart, Trash2 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '../../avatar'
 import { Separator } from '../../separator'
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Input } from '../../input'
+import { NumberField, NumberFieldScrubArea } from '../../base-number-field'
 
 const cartData = [
     {
@@ -38,6 +40,11 @@ const cartData = [
 ]
 
 const CartButton = () => {
+    const [value, setValue] = useState(1)
+
+    const decrease = () => setValue((v) => Math.max(0, v - 1))
+    const increase = () => setValue((v) => v + 1)
+
     return (
         <HoverCard openDelay={200} closeDelay={100}>
             <HoverCardTrigger asChild>
@@ -47,7 +54,7 @@ const CartButton = () => {
             </HoverCardTrigger>
             <HoverCardContent align="end" className='w-120 p-2'>
                 <div className='p-2'>
-                    <span className='text-xl font-semibold'>Your Wishlist</span>
+                    <span className='text-xl font-semibold'>Your Cart</span>
                 </div>
 
                 <Separator className='my-1.5'/>
@@ -55,7 +62,7 @@ const CartButton = () => {
                 <ScrollArea className="h-72">
                     <div className='flex flex-col gap-1.5 pr-3'>
                         {cartData.map((item) => (
-                            <a key={item.id} href='#' className='flex flex-row justify-between p-1.5 hover:bg-gray-100 rounded-md transition-colors'>
+                            <a key={item.id} href='#' className='flex flex-row justify-between p-1.5 hover:bg-gray-100/50 rounded-md transition-colors'>
                                 <div className='flex flex-row gap-2'>
                                     <Avatar className="h-20 w-20 rounded-sm">
                                         <AvatarImage
@@ -71,25 +78,29 @@ const CartButton = () => {
                                     </div>
                                 </div>
                                 <div className='flex items-center mr-2.5'>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 group rounded-full hover:bg-red-200">
-                                        <Trash2 className="size-5 text-red-500 group-hover:text-red-600" />
-                                    </Button>
+                                    <div className="space-y-2">
+                                        <NumberField size="sm" className="mx-auto" defaultValue={1} min={0} max={100}>
+                                            <NumberFieldScrubArea></NumberFieldScrubArea>
+                                        </NumberField>
+                                    </div>
                                 </div>
                             </a>
                         ))}
                     </div>
                 </ScrollArea>
 
-                <Separator className='my-2'/>
+                <Separator className='my-2.5'/>
 
                 <div className='flex flex-row justify-between'>
                     <Button variant="outline" size="sm">
-                        Continue Shopping
+                        <a href="#">Continue Shopping</a>
                     </Button>
                     
-                    <Button variant="default" size="sm" className='font-normal'>
-                        <ShoppingCart />
-                        Checkout
+                    <Button variant="default" size="sm" className='font-normal' asChild>
+                        <a href="#">
+                            <ShoppingCart />
+                            Checkout
+                        </a>
                     </Button>
                 </div>
             </HoverCardContent>
