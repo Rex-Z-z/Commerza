@@ -73,8 +73,8 @@ const WishlistButton = () => {
                                     </div>
                                 </div>
                                 <div className='flex items-center mr-2'>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 group">
-                                        <HeartFillIcon className='size-5 text-red-500 group-hover:text-red-700'/>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 group rounded-full hover:bg-red-200">
+                                        <HeartFillIcon className='size-5 text-red-500 group-hover:text-red-600'/>
                                     </Button>
                                 </div>
                             </a>
