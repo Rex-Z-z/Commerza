@@ -89,12 +89,7 @@ const page = async () => {
                                     <Input id="phone" type="text" defaultValue={user?.phoneNumber || ""} className='h-10' disabled/>
                                 </Field>
                             </div>
-                            <div className="grid grid-cols-1 gap-4">
-                                <Field>
-                                    <FieldLabel htmlFor="address">Address</FieldLabel>
-                                    <Input id="address" type="text" defaultValue={address} className='h-10' disabled/>
-                                </Field>
-                            </div>
+                          
                             <Button variant='default' className='w-24'>
                                 <SquarePen />
                                 Edit

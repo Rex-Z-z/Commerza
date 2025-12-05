@@ -48,8 +48,8 @@ export function ForgotPasswordForm({
         throw new Error(data.message || "Failed to send reset code.");
       }
 
-      // Redirect to reset password page with email as query param
-      router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+      // Redirect to the new verification page
+      router.push(`/verify-reset?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       setError(err.message || "An error occurred.");
     } finally {

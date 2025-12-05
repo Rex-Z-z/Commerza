@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,11 +18,6 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import {
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSlot,
-} from "@/components/ui/input-otp";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export function ResetPasswordForm({
@@ -34,11 +29,17 @@ export function ResetPasswordForm({
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string>("");
-  const [otpValue, setOtpValue] = useState("");
   
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || "";
+  const otpCode = searchParams.get('otp') || ""; // Get OTP from URL
+
+  useEffect(() => {
+    if (!email || !otpCode) {
+        setError("Invalid link. Please try the 'Forgot Password' process again.");
+    }
+  }, [email, otpCode]);
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const toggleConfirmPasswordVisibility = () => setShowConfirmPassword((prev) => !prev);
@@ -48,6 +49,12 @@ export function ResetPasswordForm({
     setIsLoading(true);
     setError("");
 
+    if (!email || !otpCode) {
+        setError("Missing verification information.");
+        setIsLoading(false);
+        return;
+    }
+
     const form = e.currentTarget as HTMLFormElement;
     const formData = new FormData(form);
     const newPassword = formData.get("new-password") as string;
@@ -55,12 +62,6 @@ export function ResetPasswordForm({
 
     if (newPassword !== confirmPassword) {
         setError("Passwords do not match.");
-        setIsLoading(false);
-        return;
-    }
-
-    if (otpValue.length !== 6) {
-        setError("Please enter the 6-digit code.");
         setIsLoading(false);
         return;
     }
@@ -74,7 +75,7 @@ export function ResetPasswordForm({
         },
         body: JSON.stringify({
             email,
-            otpCode: otpValue,
+            otpCode, // Pass the hidden OTP code
             newPassword,
             confirmPassword
         }),
@@ -136,29 +137,9 @@ export function ResetPasswordForm({
               <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Reset Password</h1>
                 <p className="text-muted-foreground text-balance">
-                  Enter the code sent to {email} and your new password.
+                  Enter your new password for {email}.
                 </p>
               </div>
-
-              {/* OTP */}
-              <Field>
-                <FieldLabel className="text-center w-full block">Verification Code</FieldLabel>
-                <InputOTP 
-                    maxLength={6} 
-                    value={otpValue}
-                    onChange={(val) => setOtpValue(val)}
-                    containerClassName="justify-center mb-2"
-                >
-                    <InputOTPGroup>
-                        <InputOTPSlot index={0} className='p-4 text-lg font-semibold'/>
-                        <InputOTPSlot index={1} className='p-4 text-lg font-semibold'/>
-                        <InputOTPSlot index={2} className='p-4 text-lg font-semibold'/>
-                        <InputOTPSlot index={3} className='p-4 text-lg font-semibold'/>
-                        <InputOTPSlot index={4} className='p-4 text-lg font-semibold'/>
-                        <InputOTPSlot index={5} className='p-4 text-lg font-semibold'/>
-                    </InputOTPGroup>
-                </InputOTP>
-              </Field>
 
               {/* New Password */}
               <Field>
@@ -210,7 +191,7 @@ export function ResetPasswordForm({
 
               {/* Submit button */}
               <Field>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading || !!error}>
                   {isLoading ? (
                     <LoaderCircleIcon className="animate-spin size-4" />
                   ) : null}
