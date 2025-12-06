@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import NavBar from "@/components/ui/navbar";
+import "../globals.css";
+import MainLayoutClient from "./main-layout-client";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,14 +23,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const fontClassNames = `${geistSans.variable} ${geistMono.variable}`;
+  
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <NavBar />
+      {/* The <body> tag is now in your client component.
+        We just render the client component here and pass the
+        children (your pages) and font classes to it.
+      */}
+      <MainLayoutClient fontClassNames={fontClassNames}>
         {children}
-      </body>
+      </MainLayoutClient>
     </html>
   );
 }
