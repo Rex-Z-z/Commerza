@@ -34,7 +34,7 @@ export default async function DashboardLayout({
           <NavBar page="dashboard" user={user} />
           <div className='[--header-height:calc(--spacing(18))]'>
             <div className="flex flex-1">
-              <DashboardSidebar />
+              <DashboardSidebar user={user} />
               <SidebarInset>
                 <main className="p-4">
                   <DashboardBreadcrumb />

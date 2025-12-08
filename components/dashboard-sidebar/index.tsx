@@ -7,6 +7,7 @@ import {
   Bell,
   Settings,
   Headset,
+  UserRound,
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,6 +25,10 @@ import {
   DashboardIcon,
   DollarIcon,
 } from "../icons/custom-icon";
+
+interface DashboardSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user?: any;
+}
 
 const baseData = {
   navMain: [
@@ -80,9 +85,10 @@ const baseData = {
   ],
 };
 
-export function DashboardSidebar({
+export function DashboardSidebar({ 
+  user,
   ...props
-}: React.ComponentProps<typeof Sidebar>) {
+}: DashboardSidebarProps) {
   const pathname = usePathname();
 
   const navMain = React.useMemo(() => {
@@ -103,6 +109,10 @@ export function DashboardSidebar({
       };
     });
   }, [pathname]);
+
+  const firstName = user?.userProfile?.firstName || "User"; 
+  const lastName = user?.userProfile?.lastName || "";
+  const email = user?.email || "user@example.com";
 
   return (
     <Sidebar
@@ -125,17 +135,19 @@ export function DashboardSidebar({
               >
                 <Avatar className="h-12 w-12 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 rounded-full">
                   <AvatarImage
-                    src="https://github.com/shadcn.png"
+                    src={user?.userProfile?.profileImage}
                     alt="Chou Seangly"
                   />
-                  <AvatarFallback className="rounded-lg">CS</AvatarFallback>
+                  <AvatarFallback className="bg-gray-200 rounded-lg">
+                      <UserRound className='size-6 text-gray-400'/>
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 gap-1 text-left text-sm leading-tight">
                   <span className="truncate text-md font-bold">
-                    Chou Seangly
+                    {firstName} {lastName}
                   </span>
                   <span className="truncate text-xs text-gray-400">
-                    seangly@example.com
+                    {email}
                   </span>
                 </div>
               </a>

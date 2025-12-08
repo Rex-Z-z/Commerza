@@ -17,7 +17,6 @@ const ProfileButton = ({ user }: ProfileButtonProps) => {
     const firstName = user?.userProfile?.firstName || "User"; 
     const lastName = user?.userProfile?.lastName || "";
     const email = user?.email || "user@example.com";
-    const initials = (firstName[0] || "U") + (lastName[0] || "");
 
     return (
         <HoverCard openDelay={200} closeDelay={100}>
