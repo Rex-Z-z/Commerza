@@ -20,8 +20,6 @@ export default async function AuthLayout({
     <html lang="en">
       <body className="antialiased">
         <div className="relative flex min-h-screen flex-col">
-          {/* Pass the user object to NavBar */}
-          <NavBar user={user} />
           <main className="flex-1">{children}</main>
         </div>
       </body>
