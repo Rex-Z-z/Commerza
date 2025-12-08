@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/ui/search-bar";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Logo } from "@/components/icons/custom-icon";
-// Import the context directly for safe consumption
 import { ScrollContext } from "@/app/context/scroll-context"; 
 import { useScroll } from "@/app/context/scroll-context";
 import ProfileButton from "./profile-button";
