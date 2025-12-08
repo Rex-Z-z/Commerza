@@ -23,6 +23,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   const [isPending, startTransition] = useTransition()
   
   // -- State for Edit Modes --
+  const [isEditing, setIsEditing] = useState(false)
   const [isEditingPersonal, setIsEditingPersonal] = useState(false)
   const [isEditingAddress, setIsEditingAddress] = useState(false)
 
@@ -159,20 +160,12 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         onClick={handleCoverClick}
       >
           {/* Main Cover Image */}
-          <Avatar className='bg-[#D1D9E2] w-full h-full rounded-lg shadow-xs'>
+          <Avatar className='bg-[#D1D9E2] w-full h-full rounded-lg shadow-xs group'>
             <AvatarImage src={displayCover} className="object-cover" />
             <AvatarFallback className='bg-[#D1D9E2] rounded-lg w-full h-full flex items-center justify-center'>
-              <ImageIcon className='size-10 text-gray-400'/>
+              <ImageIcon className='size-10 text-gray-400 group-hover:opacity-0'/>
             </AvatarFallback>
           </Avatar>
-
-          {/* Hover Overlay with Edit Button */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-             <Button variant="default" className="gap-2" disabled={isPending}>
-                {isPending ? <Loader2 className="animate-spin size-4"/> : <Camera className="size-4"/>}
-                Edit Cover
-             </Button>
-          </div>
       </div>
 
       {/* Content */}
@@ -188,7 +181,6 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                         <UserRound className='size-24 text-gray-300'/>
                     </AvatarFallback>
                 </Avatar>
-            
             </div>
             
             <div className='flex flex-col gap-3'>
@@ -208,7 +200,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                 disabled={isPending}
             >
                 {isPending ? <Loader2 className="animate-spin mr-2" /> : null}
-                Change Profile Picture
+                <SquarePen />
+                Edit Profile
             </Button>
           </div>
         </div>
@@ -216,24 +209,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         {/* Details Info - Block 1 (Personal) */}
         <div className='relative bottom-11 bg-white border border-[#ededed] w-full p-6 rounded-lg shadow-xs'>
           <FieldSet>
-            <div className="flex justify-between items-center mb-4">
-                <FieldLegend>Personal Information</FieldLegend>
-                {/* Toggle Edit/Save Buttons */}
-                {!isEditingPersonal ? (
-                    <Button variant='default' size="sm" onClick={() => setIsEditingPersonal(true)}>
-                        <SquarePen className="h-4 w-4" /> Edit
-                    </Button>
-                ) : (
-                    <div className="flex gap-2">
-                        <Button variant='outline' size="sm" onClick={() => setIsEditingPersonal(false)}>
-                            <X className="h-4 w-4" /> Cancel
-                        </Button>
-                        <Button variant='default' size="sm" onClick={() => handleSectionSubmit('personal')} disabled={isPending}>
-                             {isPending ? <Loader2 className="animate-spin  h-4 w-4" /> : <Save className="h-4 w-4" />} Save
-                        </Button>
-                    </div>
-                )}
-            </div>
+            <FieldLegend>Personal Information</FieldLegend>
 
             <FieldGroup className='gap-4'>
               <div className="grid grid-cols-2 gap-4">
@@ -291,23 +267,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         {/* Details Info - Block 2 (Address) */}
         <div className='relative bottom-6 bg-white border border-[#ededed] w-full p-6 rounded-lg shadow-xs'>
           <FieldSet>
-            <div className="flex justify-between items-center mb-4">
-                <FieldLegend>Address Information</FieldLegend>
-                {!isEditingAddress ? (
-                    <Button variant='outline' size="sm" onClick={() => setIsEditingAddress(true)}>
-                        <SquarePen className=" h-4 w-4" /> Edit
-                    </Button>
-                ) : (
-                    <div className="flex gap-2">
-                        <Button variant='outline' size="sm" onClick={() => setIsEditingAddress(false)}>
-                            <X className=" h-4 w-4" /> Cancel
-                        </Button>
-                        <Button variant='default' size="sm" onClick={() => handleSectionSubmit('address')} disabled={isPending}>
-                            {isPending ? <Loader2 className="animate-spin h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />} Save
-                        </Button>
-                    </div>
-                )}
-            </div>
+            <FieldLegend>Address Information</FieldLegend>
 
             <FieldGroup className='gap-4'>
               <div className="grid grid-cols-2 gap-4">
