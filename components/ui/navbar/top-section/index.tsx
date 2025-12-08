@@ -17,7 +17,11 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { Logo } from "@/components/icons/custom-icon";
 // Import the context directly for safe consumption
 import { ScrollContext } from "@/app/context/scroll-context"; 
+import { useScroll } from "@/app/context/scroll-context";
 import ProfileButton from "./profile-button";
+import NotificationButton from "./notification-button";
+import WishlistButton from "./wishlist-button";
+import CartButton from "./cart-button";
 
 // Isolated Component for Sidebar Trigger (Prevents useSidebar error)
 const DashboardSidebarTrigger = () => {
@@ -87,17 +91,11 @@ const TopSection = ({ page = "default", user = null, isScrolled = false }: TopSe
                     </Button>
                 )}
                 
-                <Button variant="outline" size="icon" className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white">
-                    <ShoppingCart />
-                </Button>
+                <CartButton />
                 
-                <Button variant="outline" size="icon" className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white">
-                    <Heart />
-                </Button>
+                <WishlistButton />
                 
-                <Button variant="outline" size="icon" className="text-white bg-transparent border-[#139ED3]/60 hover:bg-[#139ED3]/50 hover:text-white">
-                    <Bell />
-                </Button>
+                <NotificationButton />
 
                 <ProfileButton user={user} />
                 </div>

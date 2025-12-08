@@ -56,17 +56,17 @@ const ProfileButton = ({ user }: ProfileButtonProps) => {
                             Dashboard
                         </a>
                     </Button>
-                    
-                  <Button variant="ghost" size="sm" className='justify-start' asChild>
-                        <a href="/notification">
-                            <Bell className='mr-1.5 mt-[0.8px]' />
+
+                    <Button variant="ghost" size="sm" className='justify-start' asChild>
+                        <a href="/dashboard">
+                            <Bell className='mr-1.5 mt-[0.8px]'/>
                             Notification
                         </a>
                     </Button>
 
                     <Button variant="ghost" size="sm" className='justify-start' asChild>
-                        <a href="/products/cart">
-                            <ShoppingCart className='mr-1.5 mt-[0.8px]' />
+                        <a href="/dashboard">
+                            <ShoppingCart className='mr-1.5 mt-[0.8px]'/>
                             Cart
                         </a>
                     </Button>

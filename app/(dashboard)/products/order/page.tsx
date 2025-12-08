@@ -7,7 +7,7 @@ async function getOrders(): Promise<Order[]> {
     return [
         {
             id: "ORD-001",
-            customer: { name: "Alice Johnson", email: "alice@example.com" },
+            user: { name: "Alice Johnson", email: "alice@example.com" },
             productName: "Wireless Bluetooth Earbuds",
             // Less than an hour ago
             date: "2025-12-02T11:45:00", 
@@ -18,7 +18,7 @@ async function getOrders(): Promise<Order[]> {
         },
         {
             id: "ORD-002",
-            customer: { name: "Mark Smith", email: "mark.s@example.com" },
+            user: { name: "Mark Smith", email: "mark.s@example.com" },
             productName: "Ergonomic Office Chair",
             // A few hours ago
             date: "2025-12-02T08:15:00",
@@ -29,7 +29,7 @@ async function getOrders(): Promise<Order[]> {
         },
         {
             id: "ORD-003",
-            customer: { name: "Chou Seangly", email: "seangly@example.com" },
+            user: { name: "Chou Seangly", email: "seangly@example.com" },
             productName: "Mechanical Keyboard (RGB)",
             // Yesterday
             date: "2025-12-01T18:45:00",
@@ -40,7 +40,7 @@ async function getOrders(): Promise<Order[]> {
         },
         {
             id: "ORD-004",
-            customer: { name: "Sarah Lee", email: "sarah.lee@example.com" },
+            user: { name: "Sarah Lee", email: "sarah.lee@example.com" },
             productName: "4K Ultra HD Smart TV",
             // A week ago
             date: "2025-11-25T11:20:00",
@@ -51,7 +51,7 @@ async function getOrders(): Promise<Order[]> {
         },
         {
             id: "ORD-005",
-            customer: { name: "David Chen", email: "david.c@example.com" },
+            user: { name: "David Chen", email: "david.c@example.com" },
             productName: "Running Shoes (Men)",
             // Older than 30 days (Oct 2025)
             date: "2025-10-23T16:00:00",

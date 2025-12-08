@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Commerza
 
-## Getting Started
+Commerza is a modern, comprehensive e-commerce platform built with Next.js, TypeScript, and Tailwind CSS. It features a dual-interface system supporting both public marketplace browsing and a dedicated dashboard for buyers and suppliers.
 
-First, run the development server:
+## 🚀 Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS 4](https://tailwindcss.com/)
+- **UI Components:** [shadcn/ui](https://ui.shadcn.com/) (Radix UI)
+- **Forms & Validation:** [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
+- **Tables:** [TanStack Table](https://tanstack.com/table/v8)
+- **Carousel:** [Embla Carousel](https://www.embla-carousel.com/)
+- **Icons:** [Lucide React](https://lucide.dev/)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Key Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 🛍️ Marketplace
+- **Dynamic Home Page:** Features Main, Flash Sale, and Best Sale carousels with a sticky search bar.
+- **Advanced Search & Filtering:** - Price and Discount range sliders.
+  - Multi-select checkbox filters for Brands, Features, and Categories.
+  - Rating filters.
+- **Interactive Navigation:** Mega-menus for categories and marketplace sections.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🏢 User & Supplier Dashboard
+- **Product Management:** Data tables for viewing, sorting, and managing product status (Active, Inactive, Suspended).
+- **Order Management:** Detailed order history with status tracking and payment method visualization.
+- **Supplier Verification:** - **Company Verification:** Form for uploading business licenses and tax information.
+  - **Identity Verification:** KYC flow for individual sellers with ID and selfie upload simulation.
+- **Profile Management:** Editable user profile settings.
 
-## Learn More
+### 🔐 Authentication
+- **Secure Access:** Dedicated Login and Sign-up pages for Users and Companies.
+- **Account Verification:** Email OTP (One-Time Password) verification flow.
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠️ Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Prerequisites
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
 
-## Deploy on Vercel
+### Installation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/rex-z-z/commerza.git](https://github.com/rex-z-z/commerza.git)
+   cd commerza
