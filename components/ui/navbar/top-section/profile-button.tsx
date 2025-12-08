@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../hover-card'
 import { Button } from '../../button'
@@ -5,8 +7,18 @@ import { Avatar, AvatarFallback, AvatarImage } from '../../avatar'
 import { Bell, Heart, LogOut, Settings, ShoppingCart, UserRound } from 'lucide-react'
 import { Separator } from '../../separator'
 import { DashboardIcon } from '@/components/icons/custom-icon'
+import { logoutAction } from '@/app/actions/auth' // Ensure this action exists
 
-const ProfileButton = () => {
+interface ProfileButtonProps {
+    user?: any;
+}
+
+const ProfileButton = ({ user }: ProfileButtonProps) => {
+    const firstName = user?.userProfile?.firstName || "User"; 
+    const lastName = user?.userProfile?.lastName || "";
+    const email = user?.email || "user@example.com";
+    const initials = (firstName[0] || "U") + (lastName[0] || "");
+
     return (
         <HoverCard openDelay={200} closeDelay={100}>
             <HoverCardTrigger asChild>
@@ -14,22 +26,22 @@ const ProfileButton = () => {
                     <UserRound />
                 </Button>
             </HoverCardTrigger>
-            <HoverCardContent align="end" className='p-2'>
+            <HoverCardContent align="end" className='p-2 w-64'>
                 <Button variant="ghost" size="lg" className='w-full justify-start py-7' asChild>
                     <a href="/profile" className="flex gap-2 items-center cursor-pointer">
-                        <Avatar className="h-10 w-10 rounded-full">
+                        <Avatar className="h-10 w-10 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 rounded-full">
                             <AvatarImage
-                            src="https://github.com/shadcn.png"
-                            alt="Chou Seangly"
+                                src={user?.userProfile?.profileImage || "https://github.com/shadcn.png"}
+                                alt="User"
                             />
-                            <AvatarFallback className="rounded-lg">CS</AvatarFallback>
+                            <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                         </Avatar>
                         <div className="grid flex-1 gap-1 text-left text-sm leading-tight">
                             <span className="truncate text-md font-bold">
-                                Chou Seangly
+                                {firstName} {lastName}
                             </span>
                             <span className="truncate text-xs text-gray-400">
-                                seangly@example.com
+                                {email}
                             </span>
                         </div>
                     </a>
@@ -60,25 +72,26 @@ const ProfileButton = () => {
                     </Button>
 
                     <Button variant="ghost" size="sm" className='justify-start' asChild>
-                        <a href="/dashboard">
-                            <Heart className='mr-1.5 mt-[0.8px]'/>
+                        <a href="/products/wishlist">
+                            <Heart className='mr-1.5 mt-[0.8px]' />
                             Favorite
                         </a>
                     </Button>
-                    
+
                     <Button variant="ghost" size="sm" className='justify-start' asChild>
-                        <a href="/dashboard">
-                            <Settings className='mr-1.5'/>
+                        <a href="/settings">
+                            <Settings className='mr-1.5' />
                             Setting
                         </a>
                     </Button>
+             {/* logout all devices */}
 
-                    <Button variant="ghost" size="sm" className='justify-start text-red-600 hover:text-white hover:bg-red-500' asChild>
-                        <a href="/login">
+                    <form action={logoutAction} className="w-full">
+                        <Button variant="ghost" size="sm" className='w-full justify-start text-red-600 hover:text-white hover:bg-red-500' type="submit">
                             <LogOut className='mr-1.5'/>
-                            Sign out
-                        </a>
-                    </Button>
+                            Sign out  
+                        </Button>
+                    </form>
                 </div>
             </HoverCardContent>
         </HoverCard>
@@ -86,3 +99,7 @@ const ProfileButton = () => {
 }
 
 export default ProfileButton
+
+
+
+ 

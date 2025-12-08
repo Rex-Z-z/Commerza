@@ -14,7 +14,8 @@ interface ScrollContextType {
   searchBarRef: React.RefObject<HTMLDivElement | null>
 }
 
-const ScrollContext = createContext<ScrollContextType | null>(null)
+// --- NEW: Export the Context itself for safe consumption ---
+export const ScrollContext = createContext<ScrollContextType | null>(null)
 
 export const ScrollProvider = ({ children }: { children: ReactNode }) => {
   const [isScrolledPastSearch, setIsScrolledPastSearch] = useState(false)
@@ -52,4 +53,3 @@ export const useScroll = () => {
   }
   return context
 }
-

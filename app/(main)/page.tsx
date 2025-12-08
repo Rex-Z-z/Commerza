@@ -10,6 +10,7 @@ import BestsaleCarousel from './components/bestsale-carousel'
 const frequentlySearched = ['Electronics', 'Books', 'Clothing', 'Home Appliances', 'Toys', 'Sports Equipment']
 
 const Page = () => {
+  // This hook now works because it is inside ScrollProvider defined in the layout
   const { searchBarRef } = useScroll()
 
   return (

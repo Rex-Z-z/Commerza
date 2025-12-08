@@ -51,8 +51,8 @@ const SignupUser = () => {
         const formData = new FormData(form);
         const firstName = formData.get('first-name');
         const lastName = formData.get('last-name');
-        const password = String(formData.get('password') || ''); // Get as string
-        const confirmPassword = String(formData.get('confirm-password') || ''); // Get as string
+        const password = String(formData.get('password') || '');
+        const confirmPassword = String(formData.get('confirm-password') || '');
 
         if (password !== confirmPassword) {
             setErrors({ password: "Passwords do not match." });
@@ -74,40 +74,50 @@ const SignupUser = () => {
             setErrors({ password: passwordErrors.join(" ") });
             return;
         }
+        
         setIsLoading(true);
 
         try {
-            // ...
-            // --- Simulate a failed API response for demonstration ---
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            const response = { 
-                ok: false, // Changed to false to test error case
-                json: async () => ({ 
-                    field: "email", 
-                    message: "This email address is already in use." 
-                })
-            };
-            // --- End of simulation block ---
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+            
+            const response = await fetch(`${apiUrl}/auth/register`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    password: password
+                }),
+            });
 
+            const data = await response.json();
 
             if (!response.ok) {
-                const errorData = await response.json();
+                // Handle API errors
+                const errorMessage = data.message || "Failed to create account";
                 
-                if (errorData.field === 'email') {
-                    setErrors({ email: errorData.message });
-                } else if (errorData.field === 'password') {
-                    setErrors({ password: errorData.message });
+                // Simple heuristic to assign errors to fields if the message mentions them
+                if (errorMessage.toLowerCase().includes("email")) {
+                    setErrors({ email: errorMessage });
+                } else if (errorMessage.toLowerCase().includes("password")) {
+                    setErrors({ password: errorMessage });
                 } else {
-                    setErrors({ general: errorData.message || "An unknown error occurred." });
+                    setErrors({ general: errorMessage });
                 }
-                
-                throw new Error(errorData.message || 'Failed to create account');
+                throw new Error(errorMessage);
             }
             
+            // On success, redirect to verify page with email
             router.push(`/verify?email=${encodeURIComponent(email)}`);
 
         } catch (error) {
             console.error(error);
+            // If errors weren't set by the specific checks above, set a general one
+            setErrors(prev => ({ ...prev, general: prev.general || "An unexpected error occurred." }));
+        } finally {
             setIsLoading(false);
         }
     };
@@ -245,7 +255,7 @@ const SignupUser = () => {
                     Or continue with
                 </FieldSeparator>
                 
-                {/* Socials */}
+                {/* Socials - Kept as is */}
                 <Field className="grid grid-cols-3 gap-4">
                     <Button variant="outline" type="button">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

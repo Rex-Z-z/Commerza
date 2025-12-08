@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { loginAction } from "@/app/actions/auth";
 
 type ErrorState = {
   email?: string;
@@ -33,10 +34,8 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [showPassword, setShowPassword] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<ErrorState>({});
-
   const router = useRouter();
 
   const togglePasswordVisibility = () => {
@@ -48,39 +47,27 @@ export function LoginForm({
     setIsLoading(true);
     setErrors({});
 
-    // Get form data
     const form = e.currentTarget as HTMLFormElement;
     const formData = new FormData(form);
-    const email = formData.get("email");
-    const password = formData.get("password");
 
-    // Simulate API call
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate network delay
+      const result = await loginAction(null, formData);
 
-      // --- SIMULATE A FAILED LOGIN ---
-      // Change this to `true` to test the success case
-      const simulateError = false;
-
-      if (
-        simulateError ||
-        email !== "test@example.com" ||
-        password !== "Password123"
-      ) {
-        const errorData = {
-          field: "general",
-          message: "Invalid email or password. Please try again.",
-        };
-
-        setErrors({ general: errorData.message });
-        throw new Error(errorData.message);
+      if (result?.error) {
+        setErrors({
+          general: result.error,
+        });
+        setIsLoading(false);
+        return;
       }
 
-      // --- SIMULATE A SUCCESSFUL LOGIN ---
-      console.log("Login successful!");
+      console.log("Login successful");
       router.push("/");
+      
     } catch (error) {
-      console.error(error);
+      setErrors({
+        general: "An unexpected error occurred. Please try again.",
+      });
       setIsLoading(false);
     }
   };
@@ -103,7 +90,7 @@ export function LoginForm({
                 <FieldLabel htmlFor="email">Email</FieldLabel>
                 <Input
                   id="email"
-                  name="email" // Add name attribute
+                  name="email"
                   type="email"
                   placeholder="m@example.com"
                   required
@@ -116,8 +103,9 @@ export function LoginForm({
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
+                  {/* UPDATED LINK HERE */}
                   <a
-                    href="#"
+                    href="/forgot-password"
                     className="ml-auto text-sm underline-offset-2 hover:underline text-gray-500"
                   >
                     Forgot your password?

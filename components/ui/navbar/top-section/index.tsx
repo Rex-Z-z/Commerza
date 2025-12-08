@@ -1,50 +1,72 @@
 "use client";
 
-import React from "react";
+import React, { useContext } from "react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 import {
   MapPin,
   Store,
   ShoppingCart,
+  Heart,
+  Bell,
   SidebarIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/ui/search-bar";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Logo } from "@/components/icons/custom-icon";
+import { ScrollContext } from "@/app/context/scroll-context"; 
 import { useScroll } from "@/app/context/scroll-context";
 import ProfileButton from "./profile-button";
 import NotificationButton from "./notification-button";
 import WishlistButton from "./wishlist-button";
 import CartButton from "./cart-button";
 
+// Isolated Component for Sidebar Trigger (Prevents useSidebar error)
+const DashboardSidebarTrigger = () => {
+  const { toggleSidebar } = useSidebar();
+
+  return (
+    <Button 
+      className="hover:bg-accent/20" 
+      variant="ghost" 
+      size="icon" 
+      onClick={toggleSidebar}
+    >
+      <SidebarIcon className="text-white size-5" />
+    </Button>
+  );
+};
+
 interface TopSectionProps {
   page?: "default" | "search" | "dashboard";
-  login?: boolean;
+  user?: any;
   isScrolled?: boolean;
 }
 
-const TopSection = ({ page = "default", login = false, isScrolled = false }: TopSectionProps) => {
-    const { toggleSidebar } = useSidebar();
-    // Safe destructuring in case we are not inside the ScrollProvider (e.g. dashboard)
-    const scrollContext = page === "default" ? useScroll() : { isScrolledPastSearch: false };
-    const { isScrolledPastSearch } = scrollContext || { isScrolledPastSearch: false };
+const TopSection = ({ page = "default", user = null, isScrolled = false }: TopSectionProps) => {
+    // FIX: Use useContext instead of useScroll. 
+    // This allows it to return null gracefully instead of throwing an error if provider is missing.
+    const scrollContext = useContext(ScrollContext);
+    
+    // Only use the scroll state if we are in "default" mode AND the context exists
+    const isScrolledPastSearch = (page === "default" && scrollContext) 
+        ? scrollContext.isScrolledPastSearch 
+        : false;
     
     const isSearchPage = page === "search";
+    const isLoggedIn = !!user;
 
     return (
         <div className="px-4 py-4 flex items-center justify-between">
             {/* Logo */}
             <div className="flex flex-row gap-4">
-                <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
+                <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
                     <Logo />
-                </a>
+                </Link>
 
-                {page === "dashboard" && (
-                <Button className="hover:bg-accent/20" variant="ghost" size="icon" onClick={toggleSidebar}>
-                    <SidebarIcon className="text-white size-5" />
-                </Button>
-                )}
+                {/* Only render Sidebar Trigger if we are on the Dashboard */}
+                {page === "dashboard" && <DashboardSidebarTrigger />}
             </div>
 
             {page !== "dashboard" && (
@@ -59,7 +81,7 @@ const TopSection = ({ page = "default", login = false, isScrolled = false }: Top
             {page === "dashboard" && <div className="grow" />}
 
             {/* Check if user is logged in */}
-            {login ? (
+            {isLoggedIn ? (
                 <div className="flex flex-row items-center gap-2">
                 {page !== "default" && (
                     <Button variant="secondary" className="hover:text-primary/90 hover:bg-gray-100">
@@ -74,9 +96,7 @@ const TopSection = ({ page = "default", login = false, isScrolled = false }: Top
                 
                 <NotificationButton />
 
-                {page === "default" && (
-                    <ProfileButton />
-                )}
+                <ProfileButton user={user} />
                 </div>
             ) : (
                 <div className="flex flex-row items-center gap-2">

@@ -1,39 +1,41 @@
-'use client'
+"use client";
 
-import "../globals.css";
+import React from "react";
 import NavBar from "@/components/ui/navbar";
-import { ScrollProvider } from "../context/scroll-context";
-import { usePathname } from 'next/navigation';
-// 1. Import the SidebarProvider
-import { SidebarProvider } from "@/components/ui/sidebar";
+// Import the ScrollProvider
+import { ScrollProvider } from "@/app/context/scroll-context";
 
-export default function MainLayoutClient({
-  children,
-  fontClassNames
-}: Readonly<{
+// If you have a Footer component, import it here:
+// import Footer from "@/components/ui/footer"; 
+
+interface MainLayoutClientProps {
   children: React.ReactNode;
   fontClassNames: string;
-}>) {
-  const pathname = usePathname();
-  const isSearchPage = pathname === '/search';
+  user?: any; 
+}
 
+const MainLayoutClient = ({ 
+  children, 
+  fontClassNames, 
+  user 
+}: MainLayoutClientProps) => {
   return (
-    <body
-      className={`${fontClassNames} antialiased`}
-    >
-      <SidebarProvider defaultOpen={false} className="flex flex-col">
-        {isSearchPage ? (
-          <>
-            <NavBar page="search"/>
+    <body className={`${fontClassNames} antialiased`}>
+       {/* Wrap the content with ScrollProvider so useScroll() works in Page and NavBar */}
+       <ScrollProvider>
+         <div className="relative flex min-h-screen flex-col">
+          {/* Pass user to NavBar */}
+          <NavBar user={user} />
+          
+          <main className="flex-1">
             {children}
-          </>
-        ) : (
-          <ScrollProvider>
-            <NavBar page="default" login={true} />
-            {children}
-          </ScrollProvider>
-        )}
-      </SidebarProvider>
+          </main>
+          
+          {/* <Footer /> */}
+        </div>
+      </ScrollProvider>
     </body>
   );
-}
+};
+
+export default MainLayoutClient;
