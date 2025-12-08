@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -15,61 +15,16 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp"
 import { Card, CardContent } from "@/components/ui/card"
-import { LoaderCircleIcon, Check } from 'lucide-react';
+import { LoaderCircleIcon } from 'lucide-react';
 
-const Success = () => {
-    return (
-        <div className='flex flex-col gap-6'>
-            <Card className="overflow-hidden p-0">
-                <CardContent className="grid p-0 md:grid-cols-2">
-                    <FieldGroup className="p-6 md:p-8 md:py-32">
-                        <Field className="flex flex-col gap-6 justify-center">
-                            <div className="flex items-center justify-center">
-                                <Check strokeWidth={3} className='size-16 p-2.5 text-white bg-green-500 rounded-full'/>
-                            </div>
-                            <div className="items-center text-center">
-                                <h1 className="text-2xl font-bold">Verification successful</h1>
-                                <p className="text-muted-foreground text-sm text-balance">
-                                  You have successfully verified your email.
-                                </p>
-                            </div>
-                            {/* Added login button */}
-                            <Button asChild className="mt-4">
-                                <a href="/login">Go to Login</a>
-                            </Button>
-                        </Field>
-                    </FieldGroup>
-
-                    {/* Added image for layout consistency */}
-                    <div className="bg-muted relative hidden md:block">
-                        <img
-                        src="https://ui.shadcn.com/placeholder.svg"
-                        alt="Image"
-                        className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-                        />
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-    )
-}
-
-const Verification = () => {
+export const VerifyReset = () => {
     const [isLoading, setIsLoading] = useState(false);
-    const [isDisabled, setIsDisabled] = useState(false);
-    const [isVerified, setIsVerified] = useState(false);
     const [otpValue, setOtpValue] = useState("");
     const [error, setError] = useState("");
     
+    const router = useRouter();
     const searchParams = useSearchParams();
     const email = searchParams.get('email');
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-        setIsDisabled((prev) => !prev);
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
 
     const handleVerifySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -85,6 +40,7 @@ const Verification = () => {
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
             
+            // 1. Verify the OTP first
             const response = await fetch(`${apiUrl}/auth/verify-otp`, {
                 method: 'POST',
                 headers: {
@@ -102,12 +58,12 @@ const Verification = () => {
                 throw new Error(data.message || "Verification failed");
             }
 
-            // On success, set verified to true
-            setIsVerified(true);
+            // 2. Redirect to reset password page with email and the verified OTP
+            router.push(`/reset-password?email=${encodeURIComponent(email || '')}&otp=${otpValue}`);
 
         } catch (err: any) {
             console.error(err);
-            setError(err.message || "An error occurred during verification.");
+            setError(err.message || "Invalid or expired code.");
         } finally {
             setIsLoading(false);
         }
@@ -133,7 +89,6 @@ const Verification = () => {
                 throw new Error(data.message || "Failed to resend code");
             }
             
-            // Optional: Add a visual indicator that code was resent (e.g. alert or toast)
             alert(`Code sent to ${email}`);
             
         } catch (err: any) {
@@ -141,9 +96,12 @@ const Verification = () => {
         }
     };
 
-    // --- Conditional Rendering ---
-    if (isVerified) {
-        return <Success />;
+    if (!email) {
+         return (
+             <div className="flex justify-center items-center h-full text-red-500">
+                 Invalid link. Email missing.
+             </div>
+         )
     }
     
     return (
@@ -153,9 +111,9 @@ const Verification = () => {
                     <form onSubmit={handleVerifySubmit}>
                         <FieldGroup className="p-6 md:p-8 md:py-32">
                             <Field className="items-center text-center">
-                                <h1 className="text-2xl font-bold">Enter verification code</h1>
+                                <h1 className="text-2xl font-bold">Verification</h1>
                                 <p className="text-muted-foreground text-sm text-balance">
-                                  We sent a 6-digit code to {email || 'your email'}
+                                  We sent a 6-digit code to {email}
                                 </p>
                             </Field>
 
@@ -187,7 +145,7 @@ const Verification = () => {
                                     </FieldDescription>
                                 ) : (
                                     <FieldDescription className="text-center">
-                                        Enter the 6-digit code sent to your email.
+                                        Enter the code to reset your password.
                                     </FieldDescription>
                                 )}
                              </Field>
@@ -195,8 +153,8 @@ const Verification = () => {
                             {/* Button */}
                             <Field>
                                 <div className="flex flex-row justify-between gap-2">
-                                    <Button variant="outline" size="lg" type="button" className='w-[49%]' asChild>
-                                        <a href="/signup">Back</a>
+                                    <Button variant="outline" size="lg" type="button" className='w-[49%]' onClick={() => router.back()}>
+                                        Back
                                     </Button>
                                     <Button type="submit" size="lg" className='w-[49%]' disabled={isLoading}>
                                         {isLoading ? <LoaderCircleIcon className="animate-spin size-4" /> : null}
@@ -212,7 +170,7 @@ const Verification = () => {
 
                     <div className="bg-muted relative hidden md:block">
                         <img
-                        src="https://ui.shadcn.com/placeholder.svg"
+                        src="https://images.pexels.com/photos/7792743/pexels-photo-7792743.jpeg"
                         alt="Image"
                         className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
                         />
@@ -222,5 +180,3 @@ const Verification = () => {
         </div>
     )
 }
-
-export default Verification
