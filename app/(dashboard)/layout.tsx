@@ -8,6 +8,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { DashboardBreadcrumb } from "@/components/dashboard-breadcrumb"
+import { getCurrentUser } from "@/app/actions/user";
 
 export const metadata: Metadata = {
   title: "E-Commerce App / Dashboard",
@@ -21,12 +22,16 @@ export default async function DashboardLayout({
 }) {
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
+  
+  // Fetch user for the dashboard navbar
+  const user = await getCurrentUser();
 
   return (
     <html lang="en">
       <body className="antialiased">
         <SidebarProvider defaultOpen={defaultOpen} className="flex flex-col">
-          <NavBar page="dashboard" login={true} />
+          {/* Pass page="dashboard" and the user object */}
+          <NavBar page="dashboard" user={user} />
           <div className='[--header-height:calc(--spacing(18))]'>
             <div className="flex flex-1">
               <DashboardSidebar />
