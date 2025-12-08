@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import MainLayoutClient from "./main-layout-client";
+import { getCurrentUser } from "@/app/actions/user"; // Import the fetcher
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,20 +19,20 @@ export const metadata: Metadata = {
   description: "A modern e-commerce application built with Next.js and Tailwind CSS",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // 1. Fetch the user on the server
+  const user = await getCurrentUser();
+  
   const fontClassNames = `${geistSans.variable} ${geistMono.variable}`;
   
   return (
     <html lang="en">
-      {/* The <body> tag is now in your client component.
-        We just render the client component here and pass the
-        children (your pages) and font classes to it.
-      */}
-      <MainLayoutClient fontClassNames={fontClassNames}>
+      {/* 2. Pass the user object to the client component */}
+      <MainLayoutClient fontClassNames={fontClassNames} user={user}>
         {children}
       </MainLayoutClient>
     </html>

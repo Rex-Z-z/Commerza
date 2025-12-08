@@ -58,6 +58,9 @@ const Verification = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [isVerified, setIsVerified] = useState(false);
+    const [otpValue, setOtpValue] = useState("");
+    const [error, setError] = useState("");
+    
     const searchParams = useSearchParams();
     const email = searchParams.get('email');
 
@@ -70,36 +73,72 @@ const Verification = () => {
 
     const handleVerifySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError("");
+        
+        if (otpValue.length !== 6) {
+            setError("Please enter a complete 6-digit code.");
+            return;
+        }
+
         setIsLoading(true);
 
-        // --- API LOGIC HERE ---
-        // (Simulating a successful API call)
         try {
-            // const code = /* get code from InputOTP state */;
-            // const response = await fetch('/api/verify-code', {
-            //     method: 'POST',
-            //     body: JSON.stringify({ email, code })
-            // });
-            // if (!response.ok) throw new Error("Verification failed");
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+            
+            const response = await fetch(`${apiUrl}/auth/verify-otp`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    email: email, 
+                    otpCode: otpValue 
+                })
+            });
 
-            // --- 2. On success, set verified to true ---
-            setTimeout(() => {
-                setIsVerified(true);
-            }, 1500); // Simulating a 1.5s network request
+            const data = await response.json();
 
-        } catch (error) {
-            console.error(error);
+            if (!response.ok) {
+                throw new Error(data.message || "Verification failed");
+            }
+
+            // On success, set verified to true
+            setIsVerified(true);
+
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || "An error occurred during verification.");
+        } finally {
             setIsLoading(false);
-            // Handle error (show toast, etc.)
         }
     };
 
-    const handleResend = async () => {
-        console.log("Resending code to:", email);
-        // await fetch('/api/resend-code', { 
-        //     method: 'POST', 
-        //     body: JSON.stringify({ email }) 
-        // });
+    const handleResend = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if(!email) return;
+
+        setError("");
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+            const response = await fetch(`${apiUrl}/auth/resend-otp`, { 
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email }) 
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || "Failed to resend code");
+            }
+            
+            // Optional: Add a visual indicator that code was resent (e.g. alert or toast)
+            alert(`Code sent to ${email}`);
+            
+        } catch (err: any) {
+            setError(err.message);
+        }
     };
 
     // --- Conditional Rendering ---
@@ -125,7 +164,14 @@ const Verification = () => {
                                 <FieldLabel htmlFor="otp" className="sr-only">
                                     Verification code
                                 </FieldLabel>
-                                <InputOTP maxLength={6} id="otp" required containerClassName="justify-center mb-4">
+                                <InputOTP 
+                                    maxLength={6} 
+                                    id="otp" 
+                                    required 
+                                    containerClassName="justify-center mb-4"
+                                    value={otpValue}
+                                    onChange={(value) => setOtpValue(value)}
+                                >
                                     <InputOTPGroup>
                                         <InputOTPSlot index={0} className='p-8 text-xl font-semibold'/>
                                         <InputOTPSlot index={1} className='p-8 text-xl font-semibold'/>
@@ -135,9 +181,15 @@ const Verification = () => {
                                         <InputOTPSlot index={5} className='p-8 text-xl font-semibold'/>
                                     </InputOTPGroup>
                                 </InputOTP>
-                                <FieldDescription className="text-center">
-                                    Enter the 6-digit code sent to your email.
-                                </FieldDescription>
+                                {error ? (
+                                    <FieldDescription className="text-center text-red-500">
+                                        {error}
+                                    </FieldDescription>
+                                ) : (
+                                    <FieldDescription className="text-center">
+                                        Enter the 6-digit code sent to your email.
+                                    </FieldDescription>
+                                )}
                              </Field>
                         
                             {/* Button */}
@@ -152,7 +204,7 @@ const Verification = () => {
                                     </Button>
                                 </div>
                                 <FieldDescription className="text-center">
-                                    Didn&apos;t receive the code? <a href="#" onClick={handleResend}>Resend</a>
+                                    Didn&apos;t receive the code? <a href="#" onClick={handleResend} className="hover:underline text-primary">Resend</a>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>
