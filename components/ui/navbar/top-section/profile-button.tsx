@@ -17,7 +17,6 @@ const ProfileButton = ({ user }: ProfileButtonProps) => {
     const firstName = user?.userProfile?.firstName || "User"; 
     const lastName = user?.userProfile?.lastName || "";
     const email = user?.email || "user@example.com";
-    const initials = (firstName[0] || "U") + (lastName[0] || "");
 
     return (
         <HoverCard openDelay={200} closeDelay={100}>
@@ -31,10 +30,12 @@ const ProfileButton = ({ user }: ProfileButtonProps) => {
                     <a href="/profile" className="flex gap-2 items-center cursor-pointer">
                         <Avatar className="h-10 w-10 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 rounded-full">
                             <AvatarImage
-                                src={user?.userProfile?.profileImage || "https://github.com/shadcn.png"}
+                                src={user?.userProfile?.profileImage}
                                 alt="User"
                             />
-                            <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                            <AvatarFallback className="bg-gray-200 rounded-lg">
+                                <UserRound className='size-4.5 text-gray-400'/>
+                            </AvatarFallback>
                         </Avatar>
                         <div className="grid flex-1 gap-1 text-left text-sm leading-tight">
                             <span className="truncate text-md font-bold">
