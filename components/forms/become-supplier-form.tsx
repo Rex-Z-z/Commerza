@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Lock } from "lucide-react";
 import { CompanyInfoStep } from "./company-info-step";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner"; // <--- CHANGED: Use Sonner
+import { toast } from "sonner";
+import { createCompanyAction } from "@/app/actions/company"; // Import the new action
 
 // --- VALIDATION SCHEMA ---
 const upgradeSchema = z.object({
@@ -31,11 +32,11 @@ const upgradeSchema = z.object({
 
 export default function BecomeSupplierForm() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  // Auth Check (Replace with your actual auth hook)
-  const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
-  const isAuthenticated = !!token;
+  // We rely on the server to check auth via cookies, 
+  // but for UI toggle we can check if the cookie exists or use a context.
+  // For now, we assume the user is on this page because middleware let them in.
 
   const {
     register,
@@ -45,78 +46,51 @@ export default function BecomeSupplierForm() {
     resolver: zodResolver(upgradeSchema),
   });
 
-  const onSubmit = async (data: any) => {
-    if (!isAuthenticated) return;
+  const onSubmit = (data: any) => {
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
 
-    setIsLoading(true);
+        // 1. Prepare JSON Data
+        const requestData = {
+          companyName: data.companyName,
+          industryType: data.industryType,
+          taxId: data.taxId,
+          phoneNumber: data.phoneNumber,
+          description: data.description,
+          addressLine1: data.addressLine1,
+          city: data.city,
+          stateProvince: data.stateProvince,
+          postalCode: data.postalCode,
+          country: data.country
+        };
 
-    try {
-      const formData = new FormData();
+        // 2. Append JSON string directly. The Server Action will wrap it in a Blob.
+        formData.append("request", JSON.stringify(requestData));
 
-      // 1. Prepare JSON Data
-      const requestData = {
-        companyName: data.companyName,
-        industryType: data.industryType,
-        taxId: data.taxId,
-        phoneNumber: data.phoneNumber,
-        description: data.description,
-        addressLine1: data.addressLine1,
-        city: data.city,
-        stateProvince: data.stateProvince,
-        postalCode: data.postalCode,
-        country: data.country
-      };
+        // 3. Append File
+        if (data.logo && data.logo.length > 0) {
+          formData.append("logo", data.logo[0]);
+        }
 
-      // 2. Append JSON as 'request' part
-      formData.append(
-        "request",
-        new Blob([JSON.stringify(requestData)], { type: "application/json" })
-      );
+        // 4. Call Server Action
+        const result = await createCompanyAction(null, formData);
 
-      // 3. Append File as 'logo' part
-      if (data.logo && data.logo.length > 0) {
-        formData.append("logo", data.logo[0]);
+        if (result.error) {
+           toast.error(result.error);
+           return;
+        }
+
+        toast.success("Success! You are now a supplier.");
+        // Redirect to dashboard or logout to refresh roles in token
+        router.push("/dashboard"); 
+
+      } catch (error: any) {
+        console.error(error);
+        toast.error("An unexpected error occurred.");
       }
-
-      // 4. Send Request
-      const response = await fetch("http://localhost:8080/api/v1/company", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}` 
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.message || "Registration failed");
-      }
-
-      const result = await response.json();
-      console.log("Success:", result);
-      
-      // --- CHANGED: Use Sonner Toast ---
-      toast.success("Success! You are now a supplier.");
-      router.push("/dashboard");
-
-    } catch (error: any) {
-      console.error(error);
-      toast.error("Error: " + error.message);
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 space-y-4 border rounded-lg bg-gray-50">
-        <Lock className="w-10 h-10 text-gray-400" />
-        <h2 className="text-xl font-semibold">Login Required</h2>
-        <p className="text-gray-500">Please login to upgrade your account.</p>
-        <Button onClick={() => router.push("/login")}>Login Now</Button>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -137,9 +111,9 @@ export default function BecomeSupplierForm() {
         <Button
           type="submit"
           className="w-full bg-[#139ED3] hover:bg-[#118bbd] text-white py-6 text-lg"
-          disabled={isLoading}
+          disabled={isPending}
         >
-          {isLoading ? (
+          {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...
             </>

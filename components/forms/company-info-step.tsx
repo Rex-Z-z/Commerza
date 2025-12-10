@@ -46,7 +46,7 @@ export function CompanyInfoStep({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="industryType">Industry Type <span className="text-red-500">*</span></Label>
-            <select
+            {/* <select
                 id="industryType"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 {...register("industryType")}
@@ -55,7 +55,8 @@ export function CompanyInfoStep({
                 <option value="Electronics">Electronics</option>
                 <option value="Apparel">Apparel</option>
                 <option value="Machinery">Machinery</option>
-            </select>
+            </select> */}
+            <Input id="industryType" {...register("industryType")} placeholder="e.g. Electronics, Apparel" />
             {errors.industryType && <p className="text-red-500 text-xs">{errors.industryType.message as string}</p>}
           </div>
 
