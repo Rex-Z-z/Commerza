@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { format } from "date-fns";
+// import { format } from "date-fns"; // Removed dependency
 import { Check, X, Loader2, FileText } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +22,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // Import the new server actions
@@ -46,7 +46,6 @@ export default function AdminVerificationsPage() {
   const [requests, setRequests] = useState<VerifyRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const { toast } = useToast();
 
   // 1. Fetch using Server Action
   useEffect(() => {
@@ -61,7 +60,9 @@ export default function AdminVerificationsPage() {
       setRequests(result.payload);
     } else {
       console.error(result.error);
-      // Optional: Show toast on fetch error
+      toast.error("Error fetching data", {
+        description: result.error,
+      });
     }
     setLoading(false);
   };
@@ -73,18 +74,14 @@ export default function AdminVerificationsPage() {
     const result = await approveVerificationAction(uuid);
 
     if (result.success) {
-      toast({
-        title: "Success",
+      toast.success("Success", {
         description: "Verification request approved successfully.",
-        variant: "default",
       });
       // Remove from list locally for instant feedback
       setRequests((prev) => prev.filter((req) => req.verifyUuid !== uuid));
     } else {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: result.error,
-        variant: "destructive",
       });
     }
     setProcessingId(null);
@@ -100,17 +97,14 @@ export default function AdminVerificationsPage() {
     const result = await rejectVerificationAction(uuid, remarks);
 
     if (result.success) {
-      toast({
-        title: "Rejected",
+      toast.info("Rejected", {
         description: "Verification request rejected.",
       });
       // Remove from list locally
       setRequests((prev) => prev.filter((req) => req.verifyUuid !== uuid));
     } else {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: result.error,
-        variant: "destructive",
       });
     }
     setProcessingId(null);
@@ -185,7 +179,9 @@ export default function AdminVerificationsPage() {
                     </TableCell>
                     <TableCell>
                       {req.createdAt
-                        ? format(new Date(req.createdAt), "PPP")
+                        ? new Date(req.createdAt).toLocaleDateString("en-US", {
+                            dateStyle: "long",
+                          })
                         : "N/A"}
                     </TableCell>
                     <TableCell className="text-right space-x-2">

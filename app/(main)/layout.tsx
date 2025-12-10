@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import MainLayoutClient from "./main-layout-client";
-import { getCurrentUser } from "@/app/actions/user"; // Import the fetcher
+import { getCurrentUser } from "@/app/actions/user";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,17 +24,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // 1. Fetch the user on the server
   const user = await getCurrentUser();
-  
   const fontClassNames = `${geistSans.variable} ${geistMono.variable}`;
   
   return (
     <html lang="en">
-      {/* 2. Pass the user object to the client component */}
-      <MainLayoutClient fontClassNames={fontClassNames} user={user}>
-        {children}
-      </MainLayoutClient>
+      {/* Move <body> here directly */}
+      <body className={`${fontClassNames} antialiased`}>
+        <MainLayoutClient user={user}>
+          {children}
+        </MainLayoutClient>
+      </body>
     </html>
   );
 }
