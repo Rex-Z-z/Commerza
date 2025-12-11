@@ -8,6 +8,7 @@ import {
   Settings,
   Headset,
   UserRound,
+  Users, // Import Users icon
 } from "lucide-react";
 import {
   Sidebar,
@@ -60,6 +61,23 @@ const baseData = {
         },
       ],
     },
+    // --- NEW TEAM SECTION ---
+    {
+      title: "Team",
+      url: "#",
+      icon: Users,
+      items: [
+        {
+          title: "Add Seller",
+          url: "/dashboard/team/create",
+        },
+        // {
+        //   title: "Manage Members",
+        //   url: "/dashboard/team",
+        // },
+      ],
+    },
+    // -------------------------
     {
       title: "Finances",
       url: "/finance",
