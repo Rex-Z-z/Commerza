@@ -66,7 +66,8 @@ const baseData = {
       title: "Team",
       url: "#",
       icon: Users,
-      roles: ["SUPER_ADMIN", "COMPANY_ADMIN"], // Only these roles can see this
+      // FIXED: Use "super_admin" and "admin_company" to match DatabaseSeeder.java
+      roles: ["super_admin", "admin_company"], 
       items: [
         {
           title: "Manage Members",
@@ -74,7 +75,7 @@ const baseData = {
         },
         {
           title: "Add Seller",
-          url: "/dashboard/team/create",
+          url: "/team/create",
         },
       ],
     },
@@ -110,13 +111,13 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
 
-  // 1. FIX: Correctly map 'roleName' from the Java Role model
+  // 1. Get User Roles safely and map 'roleName'
   const userRoles: string[] = React.useMemo(() => {
     if (!user) return [];
     
     // Check if user.roles exists (Set<Role> from Java converts to Array in JSON)
     if (Array.isArray(user.roles)) {
-      // API returns 'roleName', not 'name'
+      // API returns 'roleName' as per Role.java
       return user.roles.map((r: any) => r.roleName || r.name);
     }
     
@@ -134,13 +135,13 @@ export function DashboardSidebar({
       .filter((item) => {
         // 2. Filter logic: Check if user has required role
         if (item.roles && item.roles.length > 0) {
+           // We check if the user has AT LEAST ONE of the allowed roles
            const hasAccess = item.roles.some(allowedRole => userRoles.includes(allowedRole));
            return hasAccess;
         }
         return true; // Show items without role restrictions
       })
       .map((item) => {
-        // 3. Active state logic
         const isChildActive = item.items?.some(
           (subItem) => subItem.url === pathname
         );
