@@ -38,9 +38,7 @@ export default function TeamClient({ data, currentUserRole, error }: TeamClientP
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                        {isSuperAdmin ? <Users className="h-6 w-6 text-primary" /> : <Shield className="h-6 w-6 text-primary" />}
-                    </div>
+                  
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-gray-900">{title}</h1>
                         <p className="text-sm text-gray-500">{description}</p>
@@ -57,7 +55,7 @@ export default function TeamClient({ data, currentUserRole, error }: TeamClientP
             )}
 
             {/* Table Section */}
-            <div className="bg-white rounded-xl border shadow-sm p-1">
+            <div >
                 <DataTable 
                     columns={columns} 
                     data={data} 

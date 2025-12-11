@@ -2,7 +2,6 @@ import React from 'react'
 import { getCurrentUser } from '@/app/actions/user'
 import { getAllUsersAction } from '@/app/actions/team'
 import TeamClient from '@/components/team-client'
-import { redirect } from 'next/navigation'
 
 export default async function AdminCompanyPage() {
     const user = await getCurrentUser();
@@ -11,7 +10,11 @@ export default async function AdminCompanyPage() {
         return <div>Please log in to view this page.</div>
     }
 
-    const isSuperAdmin = user.roles.some((r: any) => r.roleName === 'super_admin');
+    const userRoles = user.roles || [];
+    const isSuperAdmin = userRoles.some((r: any) => {
+        const name = (r.roleName || r.name || '').toLowerCase();
+        return name === 'super_admin';
+    });
 
     // Security: Only Super Admin should access this page
     if (!isSuperAdmin) {
@@ -28,9 +31,14 @@ export default async function AdminCompanyPage() {
     } else {
         // FILTER: Show ONLY 'admin_company'
         const allUsers = res.data || [];
-        data = allUsers.filter((u: any) => 
-            u.roles.some((r: any) => r.roleName === 'admin_company')
-        );
+        
+        data = allUsers.filter((u: any) => {
+            const uRoles = u.roles || [];
+            return uRoles.some((r: any) => {
+                const rName = (r.roleName || r.name || '').toLowerCase();
+                return rName === 'admin_company';
+            });
+        });
     }
 
     return (

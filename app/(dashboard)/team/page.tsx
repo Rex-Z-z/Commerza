@@ -11,9 +11,17 @@ export default async function TeamPage() {
         return <div>Please log in to view this page.</div>
     }
 
-    // Determine role (using lowercase to match your Java backend)
-    const isSuperAdmin = user.roles.some((r: any) => r.roleName === 'super_admin');
-    const isCompanyAdmin = user.roles.some((r: any) => r.roleName === 'admin_company');
+    const userRoles = user.roles || [];
+    // Helper to check roles safely and case-insensitively
+    const hasRole = (targetRole: string) => {
+        return userRoles.some((r: any) => {
+            const name = (r.roleName || r.name || '').toLowerCase();
+            return name === targetRole.toLowerCase();
+        });
+    }
+
+    const isSuperAdmin = hasRole('super_admin');
+    const isCompanyAdmin = hasRole('admin_company');
 
     let data = [];
     let error = null;
@@ -25,11 +33,16 @@ export default async function TeamPage() {
             error = res.error;
         } else {
             // FILTER: Show ONLY 'buyer' and 'seller_company'
-            // We filter the raw list from the API
             const allUsers = res.data || [];
-            data = allUsers.filter((u: any) => 
-                u.roles.some((r: any) => r.roleName === 'buyer' || r.roleName === 'seller' || r.roleName === 'seller_company')
-            );
+            
+            data = allUsers.filter((u: any) => {
+                const uRoles = u.roles || [];
+                // Check if the user has ANY of the target roles
+                return uRoles.some((r: any) => {
+                    const rName = (r.roleName || r.name || '').toLowerCase();
+                    return rName === 'buyer' || rName === 'seller_company' || rName === 'seller_individual';
+                });
+            });
         }
     } else if (isCompanyAdmin) {
         // Keep existing logic for Company Admin (seeing their own sellers)

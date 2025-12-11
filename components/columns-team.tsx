@@ -29,7 +29,7 @@ export type TeamMember = {
         country?: string
         postalCode?: string
     }
-    roles?: { roleName: string }[] // Optional to handle empty
+    roles?: { roleName: string }[] 
     status: string
     createdAt?: string
 }
@@ -46,7 +46,6 @@ const handleDelete = async (uuid: string, role: string) => {
     else toast.error(res.error);
 }
 
-// Ensure onViewProfile is passed to the columns
 export const getColumns = (
     currentUserRole: string, 
     onViewProfile: (user: TeamMember) => void
@@ -54,10 +53,9 @@ export const getColumns = (
     {
         accessorKey: "userProfile.firstName",
         id: "user",
-        header: "User",
+        header: "UserName",
         cell: ({ row }) => {
             const profile = row.original.userProfile
-            // Fallback to email name if profile is missing
             const fallbackName = row.original.email.split('@')[0]
             const name = (profile?.firstName && profile?.lastName) 
                 ? `${profile.firstName} ${profile.lastName}` 
@@ -73,7 +71,6 @@ export const getColumns = (
                     </Avatar>
                     <div className="flex flex-col">
                         <span className="font-medium text-sm text-gray-900">{name}</span>
-                        {/* Only show role snippet if user has no email column space */}
                         <span className="text-xs text-gray-400 md:hidden">{row.original.email}</span>
                     </div>
                 </div>
@@ -83,23 +80,43 @@ export const getColumns = (
     {
         accessorKey: "email",
         header: ({ column }) => (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc") }>
                 Email <ChevronsUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
-        cell: ({ row }) => <div className="lowercase text-gray-600">{row.getValue("email")}</div>,
+        cell: ({ row }) => <div className="lowercase text-gray-600">{row.getValue("email") || "Null"}</div>,
+    },
+        {
+        accessorKey: "phoneNumber",
+        header: ({ column }) => (
+            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                Phone Number <ChevronsUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        cell: ({ row }) => <div className="lowercase text-gray-600">{row.getValue("phoneNumber") || "Null"}</div>,
     },
     {
         accessorKey: "roles",
         header: "Role",
         cell: ({ row }) => {
             const roles = row.original.roles || []
-            // Handle empty roles gracefuly
-            if (roles.length === 0) return <span className="text-xs text-gray-400 italic">No Role</span>
+            
+            // --- NEW FILTER LOGIC ---
+            // 1. If user has multiple roles, filter out 'buyer'
+            let displayRoles = roles;
+            if (roles.length > 1) {
+                displayRoles = roles.filter(r => r.roleName !== 'buyer');
+            }
+            // 2. If filtering removed everything (shouldn't happen if length > 1, but safe check), revert
+            if (displayRoles.length === 0 && roles.length > 0) {
+                displayRoles = roles;
+            }
+
+            if (displayRoles.length === 0) return <span className="text-xs text-gray-400 italic">No Role</span>
             
             return (
                 <div className="flex flex-wrap gap-1">
-                    {roles.map((r, i) => (
+                    {displayRoles.map((r, i) => (
                         <Badge key={i} variant="outline" className="capitalize text-xs font-normal">
                             {r.roleName.replace(/_/g, " ")}
                         </Badge>
