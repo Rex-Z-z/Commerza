@@ -66,7 +66,7 @@ const baseData = {
       title: "Team",
       url: "#",
       icon: Users,
-      roles: ["SUPER_ADMIN", "COMPANY_ADMIN"], // Define allowed roles
+      roles: ["SUPER_ADMIN", "COMPANY_ADMIN"], // Only these roles can see this
       items: [
         {
           title: "Manage Members",
@@ -110,18 +110,20 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
 
-  // 1. FIXED: Map 'roleName' instead of 'name' to match your Java Role model
+  // 1. FIX: Correctly map 'roleName' from the Java Role model
   const userRoles: string[] = React.useMemo(() => {
     if (!user) return [];
     
-    // Check if user.roles exists (List<Role> from Java)
+    // Check if user.roles exists (Set<Role> from Java converts to Array in JSON)
     if (Array.isArray(user.roles)) {
+      // API returns 'roleName', not 'name'
       return user.roles.map((r: any) => r.roleName || r.name);
     }
     
-    // Fallback if role is a single string or object property
+    // Fallback if role is a single object or string
     if (user.role) {
-      return [typeof user.role === 'string' ? user.role : user.role.roleName || user.role.name];
+      if (typeof user.role === 'string') return [user.role];
+      return [user.role.roleName || user.role.name];
     }
 
     return [];
@@ -130,15 +132,15 @@ export function DashboardSidebar({
   const navMain = React.useMemo(() => {
     return baseData.navMain
       .filter((item) => {
-        // 2. Filter logic: If item has 'roles', check if user has at least one of them
+        // 2. Filter logic: Check if user has required role
         if (item.roles && item.roles.length > 0) {
-           // Check if any of the user's roles match the allowed roles for this item
            const hasAccess = item.roles.some(allowedRole => userRoles.includes(allowedRole));
            return hasAccess;
         }
         return true; // Show items without role restrictions
       })
       .map((item) => {
+        // 3. Active state logic
         const isChildActive = item.items?.some(
           (subItem) => subItem.url === pathname
         );

@@ -1,6 +1,6 @@
 import React from 'react'
-import { columns, TeamMember } from "./components/columns-team"
-import { DataTable } from './components/data-table';
+import { columns, TeamMember} from '@/components/columns-team'
+import { DataTable } from '@/components/data-table'
 
 // Mock data fetcher - Replace with your actual API call
 async function getData(): Promise<TeamMember[]> {
