@@ -8,7 +8,7 @@ import {
   Settings,
   Headset,
   UserRound,
-  Users, // Import Users icon
+  Users,
 } from "lucide-react";
 import {
   Sidebar,
@@ -61,20 +61,21 @@ const baseData = {
         },
       ],
     },
-    // --- NEW TEAM SECTION ---
+    // --- TEAM SECTION (Protected) ---
     {
       title: "Team",
       url: "#",
       icon: Users,
+      roles: ["SUPER_ADMIN", "COMPANY_ADMIN"], // Define allowed roles
       items: [
+        {
+          title: "Manage Members",
+          url: "/dashboard/team",
+        },
         {
           title: "Add Seller",
           url: "/dashboard/team/create",
         },
-        // {
-        //   title: "Manage Members",
-        //   url: "/dashboard/team",
-        // },
       ],
     },
     // -------------------------
@@ -109,24 +110,51 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
 
+  // 1. FIXED: Map 'roleName' instead of 'name' to match your Java Role model
+  const userRoles: string[] = React.useMemo(() => {
+    if (!user) return [];
+    
+    // Check if user.roles exists (List<Role> from Java)
+    if (Array.isArray(user.roles)) {
+      return user.roles.map((r: any) => r.roleName || r.name);
+    }
+    
+    // Fallback if role is a single string or object property
+    if (user.role) {
+      return [typeof user.role === 'string' ? user.role : user.role.roleName || user.role.name];
+    }
+
+    return [];
+  }, [user]);
+  
   const navMain = React.useMemo(() => {
-    return baseData.navMain.map((item) => {
-      const isChildActive = item.items?.some(
-        (subItem) => subItem.url === pathname
-      );
+    return baseData.navMain
+      .filter((item) => {
+        // 2. Filter logic: If item has 'roles', check if user has at least one of them
+        if (item.roles && item.roles.length > 0) {
+           // Check if any of the user's roles match the allowed roles for this item
+           const hasAccess = item.roles.some(allowedRole => userRoles.includes(allowedRole));
+           return hasAccess;
+        }
+        return true; // Show items without role restrictions
+      })
+      .map((item) => {
+        const isChildActive = item.items?.some(
+          (subItem) => subItem.url === pathname
+        );
 
-      const isActive = item.url === pathname || isChildActive;
+        const isActive = item.url === pathname || isChildActive;
 
-      return {
-        ...item,
-        isActive,
-        items: item.items?.map((subItem) => ({
-          ...subItem,
-          isActive: subItem.url === pathname,
-        })),
-      };
-    });
-  }, [pathname]);
+        return {
+          ...item,
+          isActive,
+          items: item.items?.map((subItem) => ({
+            ...subItem,
+            isActive: subItem.url === pathname,
+          })),
+        };
+      });
+  }, [pathname, userRoles]);
 
   const firstName = user?.userProfile?.firstName || "User"; 
   const lastName = user?.userProfile?.lastName || "";
@@ -154,7 +182,7 @@ export function DashboardSidebar({
                 <Avatar className="h-12 w-12 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 rounded-full">
                   <AvatarImage
                     src={user?.userProfile?.profileImage}
-                    alt="Chou Seangly"
+                    alt={`${firstName} ${lastName}`}
                   />
                   <AvatarFallback className="bg-gray-200 rounded-lg">
                       <UserRound className='size-6 text-gray-400'/>
