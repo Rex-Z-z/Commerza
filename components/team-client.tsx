@@ -4,7 +4,9 @@ import React from 'react'
 import { DataTable } from '@/components/data-table'
 import { getColumns, TeamMember } from '@/components/columns-team'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Terminal } from "lucide-react"
+import { Terminal, Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 interface TeamClientProps {
     data: TeamMember[]
@@ -13,13 +15,11 @@ interface TeamClientProps {
 }
 
 export default function TeamClient({ data, currentUserRole, error }: TeamClientProps) {
-    // Determine title based on role
     const title = currentUserRole === 'super_admin' ? "Platform Users" : "My Sellers"
     const description = currentUserRole === 'super_admin' 
         ? "Manage all users, admins, and sellers across the platform." 
         : "Manage sales staff within your company."
 
-    // Now it's safe to call getColumns here because we are in a Client Component
     const columns = getColumns(currentUserRole)
 
     return (
@@ -43,7 +43,22 @@ export default function TeamClient({ data, currentUserRole, error }: TeamClientP
                 </Alert>
             )}
 
-            <DataTable columns={columns} data={data} />
+            {/* FIXED: Pass searchKey and actionButton */}
+            <DataTable 
+                columns={columns} 
+                data={data} 
+                searchKey="email"
+                actionButton={
+                    currentUserRole === 'admin_company' ? (
+                        <Link href="/dashboard/team/create">
+                            <Button>
+                                Add Seller
+                                <Plus className='size-4'/>
+                            </Button>
+                        </Link>
+                    ) : undefined
+                }
+            />
         </div>
     )
 }

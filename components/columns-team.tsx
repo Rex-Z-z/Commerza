@@ -29,7 +29,6 @@ export type TeamMember = {
     createdAt: string
 }
 
-// Function to handle status updates
 const handleStatusChange = async (uuid: string, newStatus: string) => {
     const res = await updateUserStatusAction(uuid, newStatus);
     if (res.success) {
@@ -51,11 +50,11 @@ const handleDelete = async (uuid: string, role: string) => {
 export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => [
     {
         accessorKey: "userProfile.firstName",
+        id: "user", // Explicit ID for the name column
         header: "User",
         cell: ({ row }) => {
             const profile = row.original.userProfile
             const name = profile ? `${profile.firstName} ${profile.lastName}` : "Unknown User"
-            const email = row.original.email
             const image = profile?.profileImage
             
             return (
@@ -68,11 +67,26 @@ export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => 
                     </Avatar>
                     <div className="flex flex-col">
                         <span className="font-medium text-sm">{name}</span>
-                        <span className="text-xs text-gray-500">{email}</span>
                     </div>
                 </div>
             )
         },
+    },
+    // FIXED: Added Email Column so filtering works
+    {
+        accessorKey: "email",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Email
+                    <ChevronsUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
     },
     {
         accessorKey: "roles",
@@ -94,7 +108,6 @@ export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => 
         cell: ({ row }) => {
             const status = row.getValue("status") as string
             
-            // Style map matches product status styles
             const variantMap: Record<string, string> = {
                 "active": "bg-green-100 text-green-600 hover:bg-green-100",    
                 "banned": "bg-red-100 text-red-600 hover:bg-red-100",
@@ -129,7 +142,6 @@ export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => 
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         
-                        {/* Actions for Super Admin */}
                         {currentUserRole === 'super_admin' && (
                             <>
                                 {user.status !== 'active' && (
@@ -145,7 +157,6 @@ export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => 
                             </>
                         )}
 
-                        {/* Actions for Company Admin */}
                         {currentUserRole === 'admin_company' && (
                             <DropdownMenuItem onClick={() => handleDelete(user.userUuid, 'admin_company')} className="text-red-600">
                                 <Trash className="mr-2 h-4 w-4" /> Remove Seller

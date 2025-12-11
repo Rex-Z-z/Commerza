@@ -22,17 +22,20 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, SlidersHorizontal } from "lucide-react"
-import Link from "next/link"
+import { SlidersHorizontal } from "lucide-react"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  searchKey?: string // FIXED: Added searchKey to make filter dynamic
+  actionButton?: React.ReactNode // FIXED: Make the add button dynamic
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  searchKey = "email", // Default to email
+  actionButton,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -56,12 +59,13 @@ export function DataTable<TData, TValue>({
         <div className="flex flex-col gap-4">
             <div className='flex flex-row justify-between'>
                 <div className='flex flex-row gap-2'>
+                    {/* FIXED: Use searchKey instead of hardcoded string */}
                     <Input 
-                        value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+                        value={(table.getColumn(searchKey)?.getFilterValue() as string) ?? ""}
                         onChange={(event) =>
-                            table.getColumn("email")?.setFilterValue(event.target.value)
+                            table.getColumn(searchKey)?.setFilterValue(event.target.value)
                         }
-                        placeholder='Search by email' 
+                        placeholder={`Search by ${searchKey}`} 
                         className='w-xs'
                     />
                     <Button variant='outline' size='icon' className='border-2'>
@@ -69,12 +73,8 @@ export function DataTable<TData, TValue>({
                     </Button>
                 </div>
                 
-                <Link href="/dashboard/team/create">
-                    <Button>
-                        Add Seller
-                        <Plus className='size-4'/>
-                    </Button>
-                </Link>
+                {/* FIXED: Render action button if provided */}
+                {actionButton}
             </div>
 
             <div>
