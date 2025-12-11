@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ChevronsUpDown, MoreHorizontal, Eye, Trash, Ban, CheckCircle } from "lucide-react"
+import { ChevronsUpDown, MoreHorizontal, Eye, Trash, Ban, CheckCircle, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { deleteUserAction, updateUserStatusAction } from "@/app/actions/team"
+import { deleteUserAction, updateUserStatusAction, updateSellerStatusAction } from "@/app/actions/team"
 import { toast } from "sonner"
 
 export type TeamMember = {
@@ -34,8 +34,15 @@ export type TeamMember = {
     createdAt?: string
 }
 
-const handleStatusChange = async (uuid: string, newStatus: string) => {
-    const res = await updateUserStatusAction(uuid, newStatus);
+const handleStatusChange = async (uuid: string, newStatus: string, currentUserRole: string) => {
+    let res;
+    // Route to correct action based on role
+    if (currentUserRole === 'admin_company') {
+        res = await updateSellerStatusAction(uuid, newStatus);
+    } else {
+        res = await updateUserStatusAction(uuid, newStatus);
+    }
+
     if (res.success) toast.success(res.message);
     else toast.error(res.error);
 }
@@ -48,12 +55,13 @@ const handleDelete = async (uuid: string, role: string) => {
 
 export const getColumns = (
     currentUserRole: string, 
-    onViewProfile: (user: TeamMember) => void
+    onViewProfile: (user: TeamMember) => void,
+    onEditProfile?: (user: TeamMember) => void // New Handler
 ): ColumnDef<TeamMember>[] => [
     {
         accessorKey: "userProfile.firstName",
         id: "user",
-        header: "UserName",
+        header: "User",
         cell: ({ row }) => {
             const profile = row.original.userProfile
             const fallbackName = row.original.email.split('@')[0]
@@ -80,34 +88,32 @@ export const getColumns = (
     {
         accessorKey: "email",
         header: ({ column }) => (
-            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc") }>
+            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
                 Email <ChevronsUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
-        cell: ({ row }) => <div className="lowercase text-gray-600">{row.getValue("email") || "Null"}</div>,
+        cell: ({ row }) => <div className="lowercase text-gray-600">{row.getValue("email")}</div>,
     },
-        {
+
+     {
         accessorKey: "phoneNumber",
         header: ({ column }) => (
             <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
                 Phone Number <ChevronsUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
-        cell: ({ row }) => <div className="lowercase text-gray-600">{row.getValue("phoneNumber") || "Null"}</div>,
+        cell: ({ row }) => <div className="lowercase text-gray-600">{row.getValue("phoneNumber") || "Null value"}</div>,
     },
     {
         accessorKey: "roles",
         header: "Role",
         cell: ({ row }) => {
             const roles = row.original.roles || []
-            
-            // --- NEW FILTER LOGIC ---
-            // 1. If user has multiple roles, filter out 'buyer'
             let displayRoles = roles;
+            // Hide 'buyer' role if user has other roles
             if (roles.length > 1) {
                 displayRoles = roles.filter(r => r.roleName !== 'buyer');
             }
-            // 2. If filtering removed everything (shouldn't happen if length > 1, but safe check), revert
             if (displayRoles.length === 0 && roles.length > 0) {
                 displayRoles = roles;
             }
@@ -158,32 +164,51 @@ export const getColumns = (
                     <DropdownMenuContent align="end" className="w-[160px]">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem onClick={() => onViewProfile(user)}>
-                            <Eye className="mr-2 h-4 w-4" /> View Profile
+                         View Profile
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.email)}>
                             Copy Email
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         
+                        {/* SUPER ADMIN ACTIONS */}
                         {currentUserRole === 'super_admin' && (
                             <>
                                 {user.status !== 'active' && (
-                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'active')}>
+                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'active', currentUserRole)}>
                                         <CheckCircle className="mr-2 h-4 w-4 text-green-600" /> Activate
                                     </DropdownMenuItem>
                                 )}
                                 {user.status !== 'banned' && (
-                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'banned')} className="text-red-600 focus:text-red-600">
+                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'banned', currentUserRole)} className="text-red-600 focus:text-red-600">
                                         <Ban className="mr-2 h-4 w-4" /> Ban User
                                     </DropdownMenuItem>
                                 )}
                             </>
                         )}
 
+                        {/* COMPANY ADMIN ACTIONS */}
                         {currentUserRole === 'admin_company' && (
-                            <DropdownMenuItem onClick={() => handleDelete(user.userUuid, 'admin_company')} className="text-red-600 focus:text-red-600">
-                                <Trash className="mr-2 h-4 w-4" /> Remove
-                            </DropdownMenuItem>
+                            <>
+                                <DropdownMenuItem onClick={() => onEditProfile && onEditProfile(user)}>
+                                    <Pencil className="mr-2 h-4 w-4" /> Edit Details
+                                </DropdownMenuItem>
+
+                                {user.status !== 'active' && (
+                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'active', currentUserRole)}>
+                                        <CheckCircle className="mr-2 h-4 w-4 text-green-600" /> Activate
+                                    </DropdownMenuItem>
+                                )}
+                                {(user.status === 'active') && (
+                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'suspended', currentUserRole)} className="text-orange-600 focus:text-orange-600">
+                                        <Ban className="mr-2 h-4 w-4" /> Suspend
+                                    </DropdownMenuItem>
+                                )}
+
+                                <DropdownMenuItem onClick={() => handleDelete(user.userUuid, 'admin_company')} className="text-red-600 focus:text-red-600">
+                                    <Trash className="mr-2 h-4 w-4" /> Remove
+                                </DropdownMenuItem>
+                            </>
                         )}
                     </DropdownMenuContent>
                 </DropdownMenu>

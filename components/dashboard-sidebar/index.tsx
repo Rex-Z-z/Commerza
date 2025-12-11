@@ -61,21 +61,22 @@ const baseData = {
         },
       ],
     },
-    // --- TEAM SECTION (Protected) ---
+    // --- TEAM SECTION ---
     {
       title: "Team",
       url: "#",
       icon: Users,
-      // FIXED: Roles must match DatabaseSeeder.java (lowercase)
       roles: ["super_admin", "admin_company"], 
       items: [
         {
           title: "Manage Members",
           url: "/team",
+          roles: ["super_admin", "admin_company"], // Both can see this
         },
         {
-          title: "admin_company",
+          title: "Company Admins", // Renamed for clarity
           url: "/team/company-admin",
+          roles: ["super_admin"], // HIDDEN from admin_company
         },
       ],
     },
@@ -111,38 +112,39 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
 
-  // 1. Get User Roles safely and map 'roleName'
+  // 1. Get User Roles safely
   const userRoles: string[] = React.useMemo(() => {
     if (!user) return [];
-    
-    // Check if user.roles exists (Set<Role> from Java converts to Array in JSON)
     if (Array.isArray(user.roles)) {
-      // API returns 'roleName' as per Role.java
       return user.roles.map((r: any) => r.roleName || r.name);
     }
-    
-    // Fallback if role is a single object or string
     if (user.role) {
       if (typeof user.role === 'string') return [user.role];
       return [user.role.roleName || user.role.name];
     }
-
     return [];
   }, [user]);
   
   const navMain = React.useMemo(() => {
     return baseData.navMain
       .filter((item) => {
-        // 2. Filter logic: Check if user has required role
+        // Filter Main Group
         if (item.roles && item.roles.length > 0) {
-           // Check if ANY of the user's roles match ANY of the allowed roles
            const hasAccess = item.roles.some(allowedRole => userRoles.includes(allowedRole));
-           return hasAccess;
+           if (!hasAccess) return false;
         }
-        return true; // Show items without role restrictions
+        return true;
       })
       .map((item) => {
-        const isChildActive = item.items?.some(
+        // Filter Sub-Items
+        const filteredItems = item.items?.filter((subItem: any) => {
+            if (subItem.roles && subItem.roles.length > 0) {
+                return subItem.roles.some((r: string) => userRoles.includes(r));
+            }
+            return true;
+        }) || [];
+
+        const isChildActive = filteredItems.some(
           (subItem) => subItem.url === pathname
         );
 
@@ -151,7 +153,7 @@ export function DashboardSidebar({
         return {
           ...item,
           isActive,
-          items: item.items?.map((subItem) => ({
+          items: filteredItems.map((subItem) => ({
             ...subItem,
             isActive: subItem.url === pathname,
           })),
@@ -169,7 +171,6 @@ export function DashboardSidebar({
       collapsible="icon"
       {...props}
     >
-      {/* Profile */}
       <SidebarHeader className="bg-white">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -205,12 +206,10 @@ export function DashboardSidebar({
         </SidebarMenu>
       </SidebarHeader>
 
-      {/* Navigation */}
       <SidebarContent className="bg-white">
         <NavMain items={navMain} />
       </SidebarContent>
 
-      {/* Footer */}
       <SidebarFooter className="px-0 bg-white">
         <NavFooter items={baseData.navFooter} />
       </SidebarFooter>

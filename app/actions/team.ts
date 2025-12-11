@@ -16,7 +16,6 @@ export async function getAllUsersAction() {
     })
 
     const data = await res.json()
-    // Check if payload exists, otherwise return empty array
     return { success: true, data: data.payload || [] }
   } catch (error: any) {
     console.error("Get Users Error:", error)
@@ -31,7 +30,6 @@ export async function getCompanySellersAction() {
   if (!token) return { error: "Unauthorized" }
 
   try {
-    // This calls the new endpoint created in Step 1
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/company-admin/sellers`, {
       headers: { 'Authorization': `Bearer ${token}` },
       cache: 'no-store'
@@ -45,6 +43,7 @@ export async function getCompanySellersAction() {
   }
 }
 
+// For Super Admin
 export async function updateUserStatusAction(userUuid: string, status: string) {
   const cookieStore = await cookies()
   const token = cookieStore.get('session_token')?.value
@@ -69,14 +68,77 @@ export async function updateUserStatusAction(userUuid: string, status: string) {
   }
 }
 
+// For Company Admin: Update Seller Details
+export async function updateSellerAction(prevState: any, formData: FormData) {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('session_token')?.value
+    
+    const userUuid = formData.get('userUuid') as string
+    const firstName = formData.get('firstName') as string
+    const lastName = formData.get('lastName') as string
+    const status = formData.get('status') as string
+
+    if (!token) return { error: "Unauthorized" }
+
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/company-admin/seller/${userUuid}`, {
+            method: "PUT",
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ firstName, lastName, status })
+        })
+
+        const data = await res.json()
+
+        if (res.ok) {
+            revalidatePath('/dashboard/team')
+            return { success: true, message: "Seller updated successfully" }
+        }
+        return { error: data.message || "Failed to update seller" }
+    } catch (error: any) {
+        return { error: error.message }
+    }
+}
+
+// For Company Admin: Suspend/Activate
+export async function updateSellerStatusAction(userUuid: string, status: string) {
+    const cookieStore = await cookies()
+    const token = cookieStore.get('session_token')?.value
+
+    if (!token) return { error: "Unauthorized" }
+
+    try {
+        // We reuse the update endpoint but only send status
+        // Ensure your backend handles null values for firstName/lastName gracefully or fetch current user first.
+        // Assuming backend merges changes or ignores nulls:
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/company-admin/seller/${userUuid}`, {
+            method: "PUT",
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status }) 
+        })
+
+        if (res.ok) {
+            revalidatePath('/dashboard/team')
+            return { success: true, message: `Seller ${status === 'active' ? 'activated' : 'suspended'}` }
+        }
+        return { error: "Failed to update status" }
+    } catch (error: any) {
+        return { error: error.message }
+    }
+}
+
 export async function deleteUserAction(userUuid: string, role: string) {
   const cookieStore = await cookies()
   const token = cookieStore.get('session_token')?.value
   
-  // Logic to determine endpoint based on who is deleting
   const endpoint = role === 'admin_company' 
     ? `/company-admin/seller/${userUuid}` 
-    : `/admin/users/${userUuid}` // Ensure this endpoint exists in AdminController or use status ban
+    : `/admin/users/${userUuid}`
 
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {

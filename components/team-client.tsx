@@ -4,10 +4,11 @@ import React, { useState } from 'react'
 import { DataTable } from '@/components/data-table'
 import { getColumns, TeamMember } from '@/components/columns-team'
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Terminal, Plus, Users, Shield } from "lucide-react"
+import { Terminal, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ViewProfileSheet } from './team/view-profile-sheet' // Adjust path if needed
+import { ViewProfileSheet } from './team/view-profile-sheet'
+import { EditSellerSheet } from './team/edit-seller-sheet'
 
 interface TeamClientProps {
     data: TeamMember[]
@@ -17,28 +18,35 @@ interface TeamClientProps {
 
 export default function TeamClient({ data, currentUserRole, error }: TeamClientProps) {
     const [selectedUser, setSelectedUser] = useState<TeamMember | null>(null)
-    const [isSheetOpen, setIsSheetOpen] = useState(false)
+    const [isViewSheetOpen, setIsViewSheetOpen] = useState(false)
+    const [isEditSheetOpen, setIsEditSheetOpen] = useState(false)
 
+    // Handler for viewing
     const handleViewProfile = (user: TeamMember) => {
         setSelectedUser(user)
-        setIsSheetOpen(true)
+        setIsViewSheetOpen(true)
     }
 
-    // Determine titles based on role
+    // Handler for editing
+    const handleEditProfile = (user: TeamMember) => {
+        setSelectedUser(user)
+        setIsEditSheetOpen(true)
+    }
+
     const isSuperAdmin = currentUserRole === 'super_admin'
     const title = isSuperAdmin ? "User Management" : "Seller Management"
     const description = isSuperAdmin 
         ? "Overview of all users, admins, and sellers registered on the platform." 
         : "Manage your company's sales team and their permissions."
 
-    const columns = getColumns(currentUserRole, handleViewProfile)
+    // Pass handlers to getColumns
+    const columns = getColumns(currentUserRole, handleViewProfile, handleEditProfile)
 
     return (
         <div className="flex flex-col gap-6 p-6">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight text-gray-900">{title}</h1>
                         <p className="text-sm text-gray-500">{description}</p>
@@ -62,8 +70,8 @@ export default function TeamClient({ data, currentUserRole, error }: TeamClientP
                     searchKey="email"
                     actionButton={
                         !isSuperAdmin ? (
-                            <Link href="/dashboard/team/create">
-                                <Button className="gap-2 shadow-none">
+                            <Link href="/team/create">
+                                <Button className="gap-2 shadow-none bg-[#139ED3] hover:bg-[#0f87b3]">
                                     <Plus className='size-4'/>
                                     Add New Seller
                                 </Button>
@@ -73,11 +81,18 @@ export default function TeamClient({ data, currentUserRole, error }: TeamClientP
                 />
             </div>
 
-            {/* Profile Sheet */}
+            {/* Profile View Sheet */}
             <ViewProfileSheet 
-                open={isSheetOpen} 
-                onOpenChange={setIsSheetOpen} 
+                open={isViewSheetOpen} 
+                onOpenChange={setIsViewSheetOpen} 
                 user={selectedUser} 
+            />
+
+            {/* Seller Edit Sheet */}
+            <EditSellerSheet
+                open={isEditSheetOpen}
+                onOpenChange={setIsEditSheetOpen}
+                user={selectedUser}
             />
         </div>
     )

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, startTransition } from "react"; // 1. Import startTransition
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -19,7 +19,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { createSellerAction } from "@/app/actions/company";
 
-// Schema matching your Java CreateSellerRequest
 const sellerSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(2, "Last name must be at least 2 characters"),
@@ -42,14 +41,13 @@ export default function CreateSellerForm() {
     },
   });
 
-  // Handle Server Action Response
   useEffect(() => {
     if (state?.error) {
       toast.error("Error", { description: state.error });
     }
     if (state?.success) {
       toast.success("Success", { description: state.message });
-      form.reset(); // Clear form on success
+      form.reset(); 
     }
   }, [state, form]);
 
@@ -60,8 +58,10 @@ export default function CreateSellerForm() {
     formData.append("email", data.email);
     formData.append("password", data.password);
     
-    // Trigger Server Action
-    formAction(formData);
+    // 2. Wrap the action call in startTransition
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   return (
@@ -79,7 +79,6 @@ export default function CreateSellerForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* First Name */}
             <FormField
               control={form.control}
               name="firstName"
@@ -97,7 +96,6 @@ export default function CreateSellerForm() {
               )}
             />
 
-            {/* Last Name */}
             <FormField
               control={form.control}
               name="lastName"
@@ -116,7 +114,6 @@ export default function CreateSellerForm() {
             />
           </div>
 
-          {/* Email */}
           <FormField
             control={form.control}
             name="email"
@@ -134,7 +131,6 @@ export default function CreateSellerForm() {
             )}
           />
 
-          {/* Password */}
           <FormField
             control={form.control}
             name="password"
