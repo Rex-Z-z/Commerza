@@ -21,9 +21,18 @@ export default async function TeamPage() {
     // Fetch data based on role
     if (isSuperAdmin) {
         const res = await getAllUsersAction();
-        if (res.error) error = res.error;
-        else data = res.data || [];
+        if (res.error) {
+            error = res.error;
+        } else {
+            // FILTER: Show ONLY 'buyer' and 'seller_company'
+            // We filter the raw list from the API
+            const allUsers = res.data || [];
+            data = allUsers.filter((u: any) => 
+                u.roles.some((r: any) => r.roleName === 'buyer' || r.roleName === 'seller' || r.roleName === 'seller_company')
+            );
+        }
     } else if (isCompanyAdmin) {
+        // Keep existing logic for Company Admin (seeing their own sellers)
         const res = await getCompanySellersAction();
         if (res.error) error = res.error;
         else data = res.data || [];
