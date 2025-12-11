@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ChevronsUpDown, MoreHorizontal, Eye, Pencil, Trash, Ban, CheckCircle } from "lucide-react"
+import { ChevronsUpDown, MoreHorizontal, Eye, Trash, Ban, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -20,84 +20,90 @@ export type TeamMember = {
     userUuid: string
     email: string
     userProfile?: {
-        firstName: string
-        lastName: string
-        profileImage: string
+        firstName?: string
+        lastName?: string
+        profileImage?: string
+        phoneNumber?: string
+        address?: string
+        city?: string
+        country?: string
+        postalCode?: string
     }
-    roles: { roleName: string }[]
+    roles?: { roleName: string }[] // Optional to handle empty
     status: string
-    createdAt: string
+    createdAt?: string
 }
 
 const handleStatusChange = async (uuid: string, newStatus: string) => {
     const res = await updateUserStatusAction(uuid, newStatus);
-    if (res.success) {
-        toast.success(res.message);
-    } else {
-        toast.error(res.error);
-    }
+    if (res.success) toast.success(res.message);
+    else toast.error(res.error);
 }
 
 const handleDelete = async (uuid: string, role: string) => {
     const res = await deleteUserAction(uuid, role);
-    if (res.success) {
-        toast.success(res.message);
-    } else {
-        toast.error(res.error);
-    }
+    if (res.success) toast.success(res.message);
+    else toast.error(res.error);
 }
 
-export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => [
+// Ensure onViewProfile is passed to the columns
+export const getColumns = (
+    currentUserRole: string, 
+    onViewProfile: (user: TeamMember) => void
+): ColumnDef<TeamMember>[] => [
     {
         accessorKey: "userProfile.firstName",
-        id: "user", // Explicit ID for the name column
+        id: "user",
         header: "User",
         cell: ({ row }) => {
             const profile = row.original.userProfile
-            const name = profile ? `${profile.firstName} ${profile.lastName}` : "Unknown User"
-            const image = profile?.profileImage
+            // Fallback to email name if profile is missing
+            const fallbackName = row.original.email.split('@')[0]
+            const name = (profile?.firstName && profile?.lastName) 
+                ? `${profile.firstName} ${profile.lastName}` 
+                : (profile?.firstName || fallbackName)
             
             return (
                 <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9 rounded-lg">
-                        <AvatarImage src={image} alt={name} />
-                        <AvatarFallback className="rounded-lg bg-gray-100">
+                    <Avatar className="h-9 w-9 rounded-lg border border-gray-100">
+                        <AvatarImage src={profile?.profileImage} alt={name} />
+                        <AvatarFallback className="rounded-lg bg-gray-100 text-gray-500 font-medium">
                             {name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col">
-                        <span className="font-medium text-sm">{name}</span>
+                        <span className="font-medium text-sm text-gray-900">{name}</span>
+                        {/* Only show role snippet if user has no email column space */}
+                        <span className="text-xs text-gray-400 md:hidden">{row.original.email}</span>
                     </div>
                 </div>
             )
         },
     },
-    // FIXED: Added Email Column so filtering works
     {
         accessorKey: "email",
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Email
-                    <ChevronsUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            )
-        },
-        cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+        header: ({ column }) => (
+            <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                Email <ChevronsUpDown className="ml-2 h-4 w-4" />
+            </Button>
+        ),
+        cell: ({ row }) => <div className="lowercase text-gray-600">{row.getValue("email")}</div>,
     },
     {
         accessorKey: "roles",
         header: "Role",
         cell: ({ row }) => {
-            const roles = row.original.roles.map(r => r.roleName).join(", ")
+            const roles = row.original.roles || []
+            // Handle empty roles gracefuly
+            if (roles.length === 0) return <span className="text-xs text-gray-400 italic">No Role</span>
+            
             return (
-                <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="capitalize">
-                        {roles.replace("_", " ")}
-                    </Badge>
+                <div className="flex flex-wrap gap-1">
+                    {roles.map((r, i) => (
+                        <Badge key={i} variant="outline" className="capitalize text-xs font-normal">
+                            {r.roleName.replace(/_/g, " ")}
+                        </Badge>
+                    ))}
                 </div>
             )
         },
@@ -106,19 +112,17 @@ export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => 
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => {
-            const status = row.getValue("status") as string
-            
+            const status = (row.getValue("status") as string) || "pending"
             const variantMap: Record<string, string> = {
-                "active": "bg-green-100 text-green-600 hover:bg-green-100",    
-                "banned": "bg-red-100 text-red-600 hover:bg-red-100",
-                "suspended": "bg-orange-100 text-orange-600 hover:bg-orange-100",
-                "pending": "bg-gray-100 text-gray-600 hover:bg-gray-100",
+                "active": "bg-green-50 text-green-700 ring-green-600/20",    
+                "banned": "bg-red-50 text-red-700 ring-red-600/20",
+                "suspended": "bg-orange-50 text-orange-700 ring-orange-600/20",
+                "pending": "bg-gray-50 text-gray-700 ring-gray-600/20",
             }
-
             return (
-                <Badge className={`border-0 ${variantMap[status.toLowerCase()] || variantMap["pending"]}`}>
+                <span className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${variantMap[status.toLowerCase()] || variantMap["pending"]}`}>
                     {status}
-                </Badge>
+                </span>
             )
         },
     },
@@ -126,17 +130,19 @@ export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => 
         id: "actions",
         cell: ({ row }) => {
             const user = row.original
-            
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
                             <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreHorizontal className="h-4 w-4 text-gray-500" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-[160px]">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => onViewProfile(user)}>
+                            <Eye className="mr-2 h-4 w-4" /> View Profile
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.email)}>
                             Copy Email
                         </DropdownMenuItem>
@@ -146,11 +152,11 @@ export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => 
                             <>
                                 {user.status !== 'active' && (
                                     <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'active')}>
-                                        <CheckCircle className="mr-2 h-4 w-4" /> Activate
+                                        <CheckCircle className="mr-2 h-4 w-4 text-green-600" /> Activate
                                     </DropdownMenuItem>
                                 )}
                                 {user.status !== 'banned' && (
-                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'banned')} className="text-red-600">
+                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'banned')} className="text-red-600 focus:text-red-600">
                                         <Ban className="mr-2 h-4 w-4" /> Ban User
                                     </DropdownMenuItem>
                                 )}
@@ -158,8 +164,8 @@ export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => 
                         )}
 
                         {currentUserRole === 'admin_company' && (
-                            <DropdownMenuItem onClick={() => handleDelete(user.userUuid, 'admin_company')} className="text-red-600">
-                                <Trash className="mr-2 h-4 w-4" /> Remove Seller
+                            <DropdownMenuItem onClick={() => handleDelete(user.userUuid, 'admin_company')} className="text-red-600 focus:text-red-600">
+                                <Trash className="mr-2 h-4 w-4" /> Remove
                             </DropdownMenuItem>
                         )}
                     </DropdownMenuContent>

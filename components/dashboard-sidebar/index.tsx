@@ -73,6 +73,10 @@ const baseData = {
           title: "Manage Members",
           url: "/team",
         },
+        {
+          title: "admin_company",
+          url: "/team/company-admin",
+        },
       ],
     },
     // -------------------------
