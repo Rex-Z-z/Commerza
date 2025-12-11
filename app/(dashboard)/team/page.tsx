@@ -1,63 +1,42 @@
 import React from 'react'
-import { columns, TeamMember} from '@/components/columns-team'
-import { DataTable } from '@/components/data-table'
+import { getCurrentUser } from '@/app/actions/user'
+import { getAllUsersAction, getCompanySellersAction } from '@/app/actions/team'
+import TeamClient from '@/components/team-client'
 
-// Mock data fetcher - Replace with your actual API call
-async function getData(): Promise<TeamMember[]> {
-    return [
-        {
-            id: "1",
-            firstName: "Chou",
-            lastName: "Seangly",
-            email: "seangly@example.com",
-            role: "SUPER_ADMIN",
-            status: "Active",
-            joinedDate: "Jan 12, 2024"
-        },
-        {
-            id: "2",
-            firstName: "Sarah",
-            lastName: "Connor",
-            email: "sarah.c@company.com",
-            role: "COMPANY_ADMIN",
-            status: "Active",
-            joinedDate: "Feb 01, 2024"
-        },
-        {
-            id: "3",
-            firstName: "John",
-            lastName: "Doe",
-            email: "john.doe@seller.com",
-            role: "SELLER",
-            status: "Pending",
-            joinedDate: "Mar 15, 2024"
-        },
-        {
-            id: "4",
-            firstName: "Jane",
-            lastName: "Smith",
-            email: "jane.s@seller.com",
-            role: "SELLER",
-            status: "Inactive",
-            joinedDate: "Mar 20, 2024"
-        }
-    ];
-}
+export default async function TeamPage() {
+    const user = await getCurrentUser();
+    
+    // Safety check if user is not logged in
+    if (!user) {
+        return <div>Please log in to view this page.</div>
+    }
 
-const TeamPage = async () => {
-    const data = await getData()
+    // Determine role (using lowercase to match your Java backend)
+    const isSuperAdmin = user.roles.some((r: any) => r.roleName === 'super_admin');
+    const isCompanyAdmin = user.roles.some((r: any) => r.roleName === 'admin_company');
 
+    let data = [];
+    let error = null;
+
+    // Fetch data based on role
+    if (isSuperAdmin) {
+        const res = await getAllUsersAction();
+        if (res.error) error = res.error;
+        else data = res.data || [];
+    } else if (isCompanyAdmin) {
+        const res = await getCompanySellersAction();
+        if (res.error) error = res.error;
+        else data = res.data || [];
+    } else {
+        return <div className="p-8">You do not have permission to view this page.</div>
+    }
+
+    // Pass data to the client component
     return (
-        <div className="flex flex-col gap-5">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Team Management</h1>
-                    <p className="text-gray-500">Manage your company members and their permissions.</p>
-                </div>
-            </div>
-            <DataTable columns={columns} data={data} />
-        </div>
+        <TeamClient 
+            data={data} 
+            currentUserRole={isSuperAdmin ? 'super_admin' : 'admin_company'} 
+            error={error} 
+        />
     )
 }
-
-export default TeamPage

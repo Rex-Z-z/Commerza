@@ -66,16 +66,12 @@ const baseData = {
       title: "Team",
       url: "#",
       icon: Users,
-      // FIXED: Use "super_admin" and "admin_company" to match DatabaseSeeder.java
+      // FIXED: Roles must match DatabaseSeeder.java (lowercase)
       roles: ["super_admin", "admin_company"], 
       items: [
         {
           title: "Manage Members",
-          url: "/dashboard/team",
-        },
-        {
-          title: "Add Seller",
-          url: "/team/create",
+          url: "/team",
         },
       ],
     },
@@ -135,7 +131,7 @@ export function DashboardSidebar({
       .filter((item) => {
         // 2. Filter logic: Check if user has required role
         if (item.roles && item.roles.length > 0) {
-           // We check if the user has AT LEAST ONE of the allowed roles
+           // Check if ANY of the user's roles match ANY of the allowed roles
            const hasAccess = item.roles.some(allowedRole => userRoles.includes(allowedRole));
            return hasAccess;
         }

@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ChevronsUpDown, ChevronUp, ChevronDown, MoreHorizontal, Eye, Pencil, Trash, User } from "lucide-react"
+import { ChevronsUpDown, MoreHorizontal, Eye, Pencil, Trash, Ban, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -13,133 +13,97 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import { deleteUserAction, updateUserStatusAction } from "@/app/actions/team"
+import { toast } from "sonner"
 
 export type TeamMember = {
-    id: string
-    firstName: string
-    lastName: string
+    userUuid: string
     email: string
-    role: string
-    status: "Active" | "Inactive" | "Pending"
-    joinedDate: string
-    image?: string
+    userProfile?: {
+        firstName: string
+        lastName: string
+        profileImage: string
+    }
+    roles: { roleName: string }[]
+    status: string
+    createdAt: string
 }
 
-export const columns: ColumnDef<TeamMember>[] = [
+// Function to handle status updates
+const handleStatusChange = async (uuid: string, newStatus: string) => {
+    const res = await updateUserStatusAction(uuid, newStatus);
+    if (res.success) {
+        toast.success(res.message);
+    } else {
+        toast.error(res.error);
+    }
+}
+
+const handleDelete = async (uuid: string, role: string) => {
+    const res = await deleteUserAction(uuid, role);
+    if (res.success) {
+        toast.success(res.message);
+    } else {
+        toast.error(res.error);
+    }
+}
+
+export const getColumns = (currentUserRole: string): ColumnDef<TeamMember>[] => [
     {
-        accessorKey: "firstName",
-        header: ({ column }) => {
-            return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="h-8">
-                    Name
-                    {column.getIsSorted() === "asc" ? (
-                    <ChevronUp className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                    ) : (
-                        <ChevronsUpDown className="ml-2 h-4 w-4" />
-                    )}
-                </Button>
-            )
-        },
+        accessorKey: "userProfile.firstName",
+        header: "User",
         cell: ({ row }) => {
-            const firstName = row.getValue("firstName") as string
-            const lastName = row.original.lastName
+            const profile = row.original.userProfile
+            const name = profile ? `${profile.firstName} ${profile.lastName}` : "Unknown User"
             const email = row.original.email
-            const image = row.original.image
+            const image = profile?.profileImage
             
             return (
-                <div className="ml-3 flex items-center gap-3">
+                <div className="flex items-center gap-3">
                     <Avatar className="h-9 w-9 rounded-lg">
-                        <AvatarImage src={image} alt={firstName} />
-                        <AvatarFallback className="rounded-lg">
-                            <User className="size-4.5 text-gray-400"/>
+                        <AvatarImage src={image} alt={name} />
+                        <AvatarFallback className="rounded-lg bg-gray-100">
+                            {name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                     </Avatar>
-                    <div className="flex flex-col gap-1">
-                        <div>{firstName} {lastName}</div>
-                        <div className="text-xs text-gray-400 font-medium">{email}</div>
+                    <div className="flex flex-col">
+                        <span className="font-medium text-sm">{name}</span>
+                        <span className="text-xs text-gray-500">{email}</span>
                     </div>
                 </div>
             )
         },
     },
     {
-        accessorKey: "email",
-        header: "Email",
+        accessorKey: "roles",
+        header: "Role",
         cell: ({ row }) => {
-            return <div className="hidden"></div> // Hidden because we show it under name, but keep for filtering
-        },
-    },
-    {
-        accessorKey: "role",
-        header: ({ column }) => {
+            const roles = row.original.roles.map(r => r.roleName).join(", ")
             return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
-                    Role
-                    {column.getIsSorted() === "asc" ? (
-                    <ChevronUp className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                    ) : (
-                        <ChevronsUpDown className="ml-2 h-4 w-4" />
-                    )}
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="capitalize">
+                        {roles.replace("_", " ")}
+                    </Badge>
+                </div>
             )
         },
-        cell: ({ row }) => {
-            const role = row.getValue("role") as string
-            return (
-                <div className="font-medium text-gray-600">{role}</div>
-            )
-        },
-    },
-    {
-        accessorKey: "joinedDate",
-        header: "Joined Date",
-        cell: ({ row }) => {
-            return <div className="text-gray-500">{row.getValue("joinedDate")}</div>
-        }
     },
     {
         accessorKey: "status",
-        header: ({ column }) => {
-            return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-3 h-8">
-                    Status
-                    {column.getIsSorted() === "asc" ? (
-                    <ChevronUp className="ml-2 h-4 w-4" />
-                    ) : column.getIsSorted() === "desc" ? (
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                    ) : (
-                        <ChevronsUpDown className="ml-2 h-4 w-4" />
-                    )}
-                </Button>
-            )
-        },
-        
+        header: "Status",
         cell: ({ row }) => {
-            const status = row.getValue("status") as TeamMember["status"]
+            const status = row.getValue("status") as string
             
-            const variantMap = {
-                "Active": "bg-green-100 text-green-500",    
-                "Inactive": "bg-red-100 text-red-500",
-                "Pending": "bg-orange-100 text-orange-400",
+            // Style map matches product status styles
+            const variantMap: Record<string, string> = {
+                "active": "bg-green-100 text-green-600 hover:bg-green-100",    
+                "banned": "bg-red-100 text-red-600 hover:bg-red-100",
+                "suspended": "bg-orange-100 text-orange-600 hover:bg-orange-100",
+                "pending": "bg-gray-100 text-gray-600 hover:bg-gray-100",
             }
 
             return (
-                <Badge className={`${variantMap[status]}`}>
+                <Badge className={`border-0 ${variantMap[status.toLowerCase()] || variantMap["pending"]}`}>
                     {status}
                 </Badge>
             )
@@ -148,48 +112,45 @@ export const columns: ColumnDef<TeamMember>[] = [
     {
         id: "actions",
         cell: ({ row }) => {
+            const user = row.original
+            
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="text-gray-500" align="end">
-                        <DropdownMenuLabel className="text-black">Actions</DropdownMenuLabel>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.email)}>
+                            Copy Email
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="justify-between cursor-pointer">
-                            View Profile
-                            <Eye className="mr-2"/>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="justify-between cursor-pointer">
-                            Edit Role
-                            <Pencil className="mr-2"/>
-                        </DropdownMenuItem>
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <DropdownMenuItem 
-                                    className="justify-between cursor-pointer"
-                                    onSelect={(e) => e.preventDefault()} 
-                                >
-                                    Remove
-                                    <Trash className="mr-2"/>
-                                </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Remove team member?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This will remove the user from your company. They will lose access to the dashboard immediately.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction className="bg-red-500 hover:bg-red-600">Remove</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
+                        
+                        {/* Actions for Super Admin */}
+                        {currentUserRole === 'super_admin' && (
+                            <>
+                                {user.status !== 'active' && (
+                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'active')}>
+                                        <CheckCircle className="mr-2 h-4 w-4" /> Activate
+                                    </DropdownMenuItem>
+                                )}
+                                {user.status !== 'banned' && (
+                                    <DropdownMenuItem onClick={() => handleStatusChange(user.userUuid, 'banned')} className="text-red-600">
+                                        <Ban className="mr-2 h-4 w-4" /> Ban User
+                                    </DropdownMenuItem>
+                                )}
+                            </>
+                        )}
+
+                        {/* Actions for Company Admin */}
+                        {currentUserRole === 'admin_company' && (
+                            <DropdownMenuItem onClick={() => handleDelete(user.userUuid, 'admin_company')} className="text-red-600">
+                                <Trash className="mr-2 h-4 w-4" /> Remove Seller
+                            </DropdownMenuItem>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             )
