@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from "react"
+import Link from "next/link"
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -68,10 +69,12 @@ export function DataTable<TData, TValue>({
                     </Button>
                 </div>
                 
-                <Button>
-                    New Product
-                    <Plus className='size-4'/>
-                </Button>
+             <Link href="/products/create">
+                    <Button>
+                        New Product
+                        <Plus className='size-4 ml-2'/>
+                    </Button>
+                </Link>
             </div>
 
             <div>
