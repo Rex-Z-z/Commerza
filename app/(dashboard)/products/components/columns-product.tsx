@@ -35,32 +35,10 @@ export type Product = {
     rating: number
     monthlySales: number
     status: "Active" | "Inactive" | "Pending" | "Suspended"
+    mainImage?: string 
 }
 
 export const columns: ColumnDef<Product>[] = [
-    // This is the select column and currently we know what to do with this
-    // {
-    //     id: "select",
-    //     header: ({ table }) => (
-    //         <Checkbox
-    //             checked={
-    //                 table.getIsAllPageRowsSelected() ||
-    //                 (table.getIsSomePageRowsSelected() && "indeterminate")
-    //             }
-    //             onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-    //             aria-label="Select all"
-    //         />
-    //     ),
-    //     cell: ({ row }) => (
-    //         <Checkbox
-    //             checked={row.getIsSelected()}
-    //             onCheckedChange={(value) => row.toggleSelected(!!value)}
-    //             aria-label="Select row"
-    //         />
-    //     ),
-    //     enableSorting: false,
-    //     enableHiding: false,
-    // },
     {
         accessorKey: "name",
         header: ({ column }) => {
@@ -80,17 +58,20 @@ export const columns: ColumnDef<Product>[] = [
         cell: ({ row }) => {
             const name = row.getValue("name") as string
             const subcategory = row.original.subcategory
+            // ✅ Get image URL
+            const imageUrl = row.original.mainImage 
+
             return (
                 <div className="ml-3 flex items-center gap-3">
-                    <Avatar className="h-9 w-9 rounded-lg">
-                        <AvatarImage alt={name} />
+                    <Avatar className="h-9 w-9 rounded-lg border">
+                        {/* ✅ Use src attribute here */}
+                        <AvatarImage src={imageUrl} alt={name} className="object-cover" />
                         <AvatarFallback className="rounded-lg">
-                            {/* {name.slice(0, 2).toUpperCase()} */}
                             <Package className="size-4.5 text-gray-400"/>
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col gap-1">
-                        <div>{name}</div>
+                        <div className="font-medium">{name}</div>
                         <div className="text-xs text-gray-400 font-medium">{subcategory}</div>
                     </div>
                 </div>
@@ -193,8 +174,8 @@ export const columns: ColumnDef<Product>[] = [
             return (
                 <div className="flex flex-row gap-2">
                     <div className="text-gray-500 w-18 truncate" title={formatted}>{formatted}</div>
-                    <Badge className={`${badgeColor}`}>
-                        {monthlySales < 22 ? "4%" : monthlySales < 44 ? "1%" : monthlySales < 66 ? "3%" : monthlySales < 88 ? "8%" : monthlySales < 100 ? "29%" : monthlySales < 122 ? "34%" : monthlySales < 144 ? "45%" : monthlySales < 166 ? "22%" : monthlySales < 188 ? "16%" : monthlySales < 200 ? "56%" : "99%"}
+                    <Badge className={`${badgeColor} hover:${badgeColor}`}>
+                        {monthlySales === 0 ? "New" : (monthlySales < 100 ? "Low" : "High")}
                     </Badge>
                 </div>
             )
@@ -221,14 +202,14 @@ export const columns: ColumnDef<Product>[] = [
             const status = row.getValue("status") as Product["status"]
             
             const variantMap = {
-                "Active": "bg-green-100 text-green-500",    
-                "Inactive": "bg-orange-100 text-orange-400",
-                "Pending": "bg-gray-100 text-gray-500",
-                "Suspended": "bg-red-100 text-red-500"
+                "Active": "bg-green-100 text-green-500 hover:bg-green-100",    
+                "Inactive": "bg-orange-100 text-orange-400 hover:bg-orange-100",
+                "Pending": "bg-gray-100 text-gray-500 hover:bg-gray-100",
+                "Suspended": "bg-red-100 text-red-500 hover:bg-red-100"
             }
 
             return (
-                <Badge className={`${variantMap[status]}`}>
+                <Badge className={`${variantMap[status] || variantMap["Pending"]}`}>
                     {status}
                 </Badge>
             )
@@ -250,11 +231,11 @@ export const columns: ColumnDef<Product>[] = [
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="justify-between cursor-pointer">
                             View
-                            <Eye className="mr-2"/>
+                            <Eye className="mr-2 h-4 w-4"/>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="justify-between cursor-pointer">
                             Edit
-                            <Pencil className="mr-2"/>
+                            <Pencil className="mr-2 h-4 w-4"/>
                         </DropdownMenuItem>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -263,7 +244,7 @@ export const columns: ColumnDef<Product>[] = [
                                     onSelect={(e) => e.preventDefault()} 
                                 >
                                     Delete
-                                    <Trash className="mr-2"/>
+                                    <Trash className="mr-2 h-4 w-4"/>
                                 </DropdownMenuItem>
                             </AlertDialogTrigger>
                             <AlertDialogContent>

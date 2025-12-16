@@ -64,4 +64,27 @@ export async function createProductAction(productData: any) {
     console.error("Create Product Error:", error);
     return { error: "Network error during product creation" };
   }
+
+  
+}
+
+export async function getAllProductsAction(page: number = 1, size: number = 50) {
+  try {
+    // Note: Targeted 'public' endpoint as per your previous code. 
+    // If you need the seller's specific products, you might need a different endpoint with Auth headers.
+    const res = await fetch(`${API_URL}/products/public?page=${page}&size=${size}`, {
+      cache: 'no-store'
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return { error: data.message || "Failed to fetch products" };
+    }
+
+    return { payload: data.payload };
+  } catch (error) {
+    console.error("Fetch Products Error:", error);
+    return { error: "Network error while fetching products" };
+  }
 }
