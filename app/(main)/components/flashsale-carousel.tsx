@@ -51,7 +51,7 @@ const FlashsaleCarousel = () => {
                                     <Card className="hover:shadow-lg transition-shadow duration-300">
                                         <CardContent className="flex flex-col p-0">
                                             <div className="relative aspect-square overflow-hidden rounded-t-xl bg-gray-100">
-                                                <img
+                                                <Image
                                                     src={product.mainImage || "/placeholder-product.png"}
                                                     alt={product.productName}
                                                     fill
