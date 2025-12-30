@@ -11,12 +11,13 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { Client } from '@stomp/stompjs'
-import SockJS from 'sockjs-client' // Required to fix the connection error
+import SockJS from 'sockjs-client'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 
-export default function ProductDetailsClient({ product }: { product: any }) {
+// Ensure you pass the authenticated 'currentUser' as a prop from the parent page
+export default function ProductDetailsClient({ product, currentUser }: { product: any, currentUser?: any }) {
   // --- EXISTING SELECTION LOGIC ---
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
@@ -63,30 +64,39 @@ export default function ProductDetailsClient({ product }: { product: any }) {
   }, [messages]);
 
   useEffect(() => {
-    if (isChatOpen) {
+    if (isChatOpen && currentUser?.token) {
       // Connect using SockJS as per your backend WebSocketConfig
       const socket = new SockJS('http://localhost:8080/ws');
       const client = new Client({
         webSocketFactory: () => socket,
+        // MANDATORY: Pass the JWT token so the backend Interceptor can authenticate the session
+        connectHeaders: {
+          Authorization: `Bearer ${currentUser.token}`
+        },
         reconnectDelay: 5000,
         onConnect: () => {
           setIsConnected(true);
-          // Subscribe to private queue
+          // Subscribe to private queue /user/queue/messages
           client.subscribe('/user/queue/messages', (message) => {
             const received = JSON.parse(message.body);
-            // Mark received messages to distinguish from 'isMe'
-            setMessages((prev) => [...prev, { ...received, isMe: false }]);
+            // Deduplicate: If it's an incoming message from the other person
+            if (received.senderId !== currentUser.email) {
+                setMessages((prev) => [...prev, { ...received, isMe: false }]);
+            }
           });
         },
         onDisconnect: () => setIsConnected(false),
-        onStompError: () => setIsConnected(false),
+        onStompError: (frame) => {
+            console.error('STOMP Error:', frame);
+            setIsConnected(false);
+        },
       });
 
       client.activate();
       stompClient.current = client;
       return () => client.deactivate();
     }
-  }, [isChatOpen]);
+  }, [isChatOpen, currentUser]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -97,7 +107,6 @@ export default function ProductDetailsClient({ product }: { product: any }) {
     formData.append("file", file);
 
     try {
-      // Uses your StorageController to upload to Pinata
       const res = await fetch('http://localhost:8080/api/v1/storage/upload', {
         method: 'POST',
         body: formData,
@@ -114,10 +123,10 @@ export default function ProductDetailsClient({ product }: { product: any }) {
   const handleSendMessage = () => {
     if (stompClient.current?.connected && (chatInput.trim() || pendingImage)) {
       const msgPayload = {
-        senderId: "currentUser@example.com", // Replace with auth user email
+        senderId: currentUser.email, // Dynamic Email
         recipientId: product.seller.email,
         content: chatInput,
-        imageUrl: pendingImage, // Pinata URL
+        imageUrl: pendingImage, 
         productId: product.productUuid,
         type: "CHAT"
       };
@@ -127,7 +136,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
         body: JSON.stringify(msgPayload),
       });
 
-      // Optimistic UI Update
+      // Optimistic UI Update: Instantly show your own message
       setMessages((prev) => [...prev, { ...msgPayload, isMe: true }]);
       setChatInput("");
       setPendingImage(null);
@@ -281,7 +290,10 @@ export default function ProductDetailsClient({ product }: { product: any }) {
 
             {/* NEW CHAT BUTTON ADDED TO BUY BOX */}
             <Button 
-              onClick={() => setIsChatOpen(true)}
+              onClick={() => {
+                  if(!currentUser) return toast.error("Please login to chat");
+                  setIsChatOpen(true);
+              }}
               variant="outline" 
               className="w-full h-10 rounded-full border-gray-300 hover:bg-gray-50 font-normal gap-2"
             >
@@ -344,13 +356,19 @@ export default function ProductDetailsClient({ product }: { product: any }) {
                     {messages.map((msg, i) => (
                         <div key={i} className={cn("flex flex-col", msg.isMe ? "items-end" : "items-start")}>
                             <div className={cn(
-                                "max-w-[85%] px-3 py-2 rounded-lg text-sm shadow-sm",
-                                msg.isMe ? "bg-[#f3f3f3] text-black rounded-br-none" : "bg-white border text-black rounded-bl-none"
+                                "max-w-[85%] px-3 py-2 rounded-lg text-sm shadow-sm mb-1",
+                                msg.isMe ? "bg-orange-500 text-white rounded-br-none" : "bg-white border text-black rounded-bl-none"
                             )}>
                                 {msg.content}
                             </div>
+                            {msg.imageUrl && (
+                                <div className="relative w-32 h-32 rounded mb-2 overflow-hidden border">
+                                    <Image src={msg.imageUrl} alt="chat-img" fill className="object-cover" />
+                                </div>
+                            )}
                         </div>
                     ))}
+                    <div ref={scrollRef} />
                 </div>
             </ScrollArea>
 
