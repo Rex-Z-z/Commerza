@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -14,13 +14,19 @@ import {
   Info, 
   ChevronRight, 
   MapPin, 
-  RotateCcw 
+  RotateCcw,
+  MessageCircle, // Added for Chat
+  Send,          // Added for Chat
+  X             // Added for Chat
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { Client } from '@stomp/stompjs' // Added for WebSocket
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Input } from '@/components/ui/input'
 
 export default function ProductDetailsClient({ product }: { product: any }) {
-  // State for selected options
+  // --- KEEP YOUR EXISTING LOGIC ---
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     Object.keys(product.availableOptions || {}).forEach(key => {
@@ -29,14 +35,12 @@ export default function ProductDetailsClient({ product }: { product: any }) {
     return initial;
   });
 
-  // Find the variant matching all selected options
   const currentVariant = useMemo(() => {
     return product.variants.find((v: any) => 
       v.options.every((opt: any) => selectedOptions[opt.optionName] === opt.valueName)
     ) || product.variants[0];
   }, [selectedOptions, product.variants]);
 
-  // Gallery Logic
   const galleryImages = useMemo(() => {
     const variantImages = currentVariant.options.find((o: any) => o.images && o.images.length > 0)?.images;
     return variantImages && variantImages.length > 0 ? variantImages : [product.mainImage];
@@ -50,12 +54,52 @@ export default function ProductDetailsClient({ product }: { product: any }) {
     setMainDisplayImage(null); 
   };
 
+  // --- ADD CHAT LOGIC ---
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState("");
+  const [messages, setMessages] = useState<any[]>([]);
+  const stompClient = useRef<Client | null>(null);
+
+  useEffect(() => {
+    if (isChatOpen) {
+      const client = new Client({
+        brokerURL: 'ws://localhost:8080/ws', // Matches your Java backend
+        onConnect: () => {
+          client.subscribe('/user/queue/messages', (message) => {
+            const received = JSON.parse(message.body);
+            setMessages((prev) => [...prev, received]);
+          });
+        },
+      });
+      client.activate();
+      stompClient.current = client;
+      return () => client.deactivate();
+    }
+  }, [isChatOpen]);
+
+  const handleSendMessage = () => {
+    if (stompClient.current && chatInput.trim()) {
+      const msgPayload = {
+        senderId: "currentUser@example.com", // Replace with actual logged-in user
+        recipientId: product.seller.email,
+        content: chatInput,
+        productId: product.productUuid,
+        timestamp: new Date(),
+      };
+      stompClient.current.publish({
+        destination: '/app/chat.sendPrivateMessage',
+        body: JSON.stringify(msgPayload),
+      });
+      setMessages((prev) => [...prev, { ...msgPayload, isMe: true }]);
+      setChatInput("");
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
       
       {/* COLUMN 1: IMAGE GALLERY (col-span 5) */}
       <div className="lg:col-span-5 flex flex-col md:flex-row gap-4 lg:sticky lg:top-24">
-        {/* Thumbnails on the left for Desktop */}
         <div className="flex md:flex-col gap-2 order-2 md:order-1 overflow-x-auto">
           {galleryImages.map((img: string, idx: number) => (
             <button 
@@ -72,7 +116,6 @@ export default function ProductDetailsClient({ product }: { product: any }) {
           ))}
         </div>
 
-        {/* Main Image View */}
         <div className="flex-1 aspect-square relative overflow-hidden rounded-lg border border-gray-100 bg-white order-1 md:order-2">
           <Image 
             src={displayImg || '/placeholder.png'} 
@@ -196,6 +239,16 @@ export default function ProductDetailsClient({ product }: { product: any }) {
             <Button className="w-full h-10 rounded-full bg-orange-500 hover:bg-orange-600 text-white border-none shadow-sm font-normal">
               Buy Now
             </Button>
+
+            {/* NEW CHAT BUTTON ADDED TO BUY BOX */}
+            <Button 
+              onClick={() => setIsChatOpen(true)}
+              variant="outline" 
+              className="w-full h-10 rounded-full border-gray-300 hover:bg-gray-50 font-normal gap-2"
+            >
+              <MessageCircle size={18} className="text-blue-600" />
+              Chat with Seller
+            </Button>
           </div>
 
           {/* Trust Details */}
@@ -206,7 +259,7 @@ export default function ProductDetailsClient({ product }: { product: any }) {
             </div>
             <div className="flex justify-between">
                 <span className="text-gray-500">Sold by</span>
-                <span className="text-gray-900">{product.seller.storeName}</span>
+                <span className="text-blue-600 hover:underline cursor-pointer font-medium">{product.seller.storeName}</span>
             </div>
             <div className="flex justify-between">
                 <span className="text-gray-500">Returns</span>
@@ -228,6 +281,55 @@ export default function ProductDetailsClient({ product }: { product: any }) {
           </div>
         </div>
       </div>
+
+      {/* --- FLOATING CHAT BOX (Absolute position) --- */}
+      {isChatOpen && (
+        <div className="fixed bottom-4 right-4 w-80 h-[450px] bg-white border border-gray-300 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
+            {/* Header */}
+            <div className="bg-[#232f3e] text-white p-3 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                    <Store size={16} />
+                    <span className="text-sm font-bold truncate">{product.seller.storeName}</span>
+                </div>
+                <button onClick={() => setIsChatOpen(false)} className="hover:text-gray-300 transition-colors">
+                    <X size={20} />
+                </button>
+            </div>
+
+            {/* Message Area */}
+            <ScrollArea className="flex-1 p-4 bg-gray-50">
+                <div className="space-y-3">
+                    <div className="bg-blue-50 border border-blue-100 p-2 rounded text-[11px] text-gray-600">
+                        Discussing: <span className="font-bold">{product.productName}</span>
+                    </div>
+                    {messages.map((msg, i) => (
+                        <div key={i} className={cn("flex flex-col", msg.isMe ? "items-end" : "items-start")}>
+                            <div className={cn(
+                                "max-w-[85%] px-3 py-2 rounded-lg text-sm shadow-sm",
+                                msg.isMe ? "bg-[#f3f3f3] text-black rounded-br-none" : "bg-white border text-black rounded-bl-none"
+                            )}>
+                                {msg.content}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </ScrollArea>
+
+            {/* Input Area */}
+            <div className="p-3 border-t bg-white flex gap-2">
+                <Input 
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                  placeholder="Type a message..." 
+                  className="h-9 text-xs focus-visible:ring-orange-500" 
+                />
+                <Button onClick={handleSendMessage} size="icon" className="h-9 w-9 bg-orange-500 hover:bg-orange-600">
+                    <Send size={16} />
+                </Button>
+            </div>
+        </div>
+      )}
     </div>
   )
 }
