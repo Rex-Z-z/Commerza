@@ -62,24 +62,20 @@ export default function ProductDetailsClient({ product, currentUser }: { product
   }, [messages]);
 
 useEffect(() => {
-    // Only connect if the user is authenticated and chat is open
-    if (isChatOpen && currentUser?.token) {
+    if (isChatOpen && currentUser?.token && currentUser?.email) {
       const socket = new SockJS('http://localhost:8080/ws');
       const client = new Client({
         webSocketFactory: () => socket,
-        connectHeaders: {
-          Authorization: `Bearer ${currentUser.token}` 
-        },
+        connectHeaders: { Authorization: `Bearer ${currentUser.token}` },
         reconnectDelay: 5000,
         onConnect: () => {
           setIsConnected(true);
-          
-          // Subscribe to the private user queue
+          // Subscribe to the unique private user queue
           client.subscribe('/user/queue/messages', (payload) => {
             const received = JSON.parse(payload.body);
             
             setMessages((prev) => {
-              // Deduplicate messages based on content and timestamp
+              // Deduplicate based on content and timestamp to avoid double-rendering echoes
               const isDuplicate = prev.some(m => 
                 m.content === received.content && m.timestamp === received.timestamp
               );
@@ -87,8 +83,8 @@ useEffect(() => {
 
               return [...prev, { 
                 ...received, 
-                // CRITICAL: Compare emails using lowercase to ensure they match exactly
-                isMe: received.senderId.toLowerCase() === currentUser.email.toLowerCase() 
+                // CRITICAL: Normalize comparison for UI alignment
+                isMe: received.senderId.toLowerCase().trim() === currentUser.email.toLowerCase().trim() 
               }];
             });
           });
@@ -105,7 +101,6 @@ useEffect(() => {
   const handleSendMessage = () => {
     if (stompClient.current?.connected && (chatInput.trim() || pendingImage)) {
       const msgPayload = {
-        // Normalize emails here too
         senderId: currentUser.email.toLowerCase().trim(),
         recipientId: product.seller.email.toLowerCase().trim(),
         content: chatInput,
@@ -119,12 +114,10 @@ useEffect(() => {
         body: JSON.stringify(msgPayload),
       });
 
-      // Clear input and wait for the server to echo the message back via the subscription
       setChatInput("");
       setPendingImage(null);
     }
   };
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
