@@ -72,20 +72,16 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         reconnectDelay: 5000,
         onConnect: () => {
           setIsConnected(true);
-          // Subscribe to private queue
           client.subscribe('/user/queue/messages', (payload) => {
             const received = JSON.parse(payload.body);
-            
             setMessages((prev) => {
-              // Deduplicate based on content and timestamp
               const isDuplicate = prev.some(m => 
                 m.content === received.content && m.timestamp === received.timestamp
               );
               if (isDuplicate) return prev;
-
               return [...prev, { 
                 ...received, 
-                // Proper identification using lowercase comparison
+                // Always compare in lowercase
                 isMe: received.senderId.toLowerCase() === currentUser.email.toLowerCase() 
               }];
             });
@@ -99,6 +95,27 @@ export default function ProductDetailsClient({ product, currentUser }: { product
       return () => client.deactivate();
     }
   }, [isChatOpen, currentUser]);
+
+  const handleSendMessage = () => {
+    if (stompClient.current?.connected && (chatInput.trim() || pendingImage)) {
+      const msgPayload = {
+        senderId: currentUser.email.toLowerCase().trim(),
+        recipientId: product.seller.email.toLowerCase().trim(),
+        content: chatInput,
+        imageUrl: pendingImage, 
+        productId: product.productUuid,
+        type: "CHAT"
+      };
+
+      stompClient.current.publish({
+        destination: '/app/chat.sendPrivateMessage',
+        body: JSON.stringify(msgPayload),
+      });
+
+      setChatInput("");
+      setPendingImage(null);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -120,44 +137,12 @@ export default function ProductDetailsClient({ product, currentUser }: { product
     }
   };
 
-  const handleSendMessage = () => {
-    if (stompClient.current?.connected && (chatInput.trim() || pendingImage)) {
-      const msgPayload = {
-        senderId: currentUser.email,
-        recipientId: product.seller.email,
-        content: chatInput,
-        imageUrl: pendingImage, 
-        productId: product.productUuid,
-        type: "CHAT"
-      };
-
-      stompClient.current.publish({
-        destination: '/app/chat.sendPrivateMessage',
-        body: JSON.stringify(msgPayload),
-      });
-
-      // DO NOT setMessages here. Let the subscription handle the UI update.
-      setChatInput("");
-      setPendingImage(null);
-    }
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
-      
-      {/* COLUMN 1: IMAGE GALLERY */}
       <div className="lg:col-span-5 flex flex-col md:flex-row gap-4 lg:sticky lg:top-24">
         <div className="flex md:flex-col gap-2 order-2 md:order-1 overflow-x-auto">
           {galleryImages.map((img: string, idx: number) => (
-            <button 
-              key={idx}
-              onMouseEnter={() => setMainDisplayImage(img)}
-              onClick={() => setMainDisplayImage(img)}
-              className={cn(
-                "relative w-16 h-16 flex-shrink-0 border rounded-md overflow-hidden bg-white transition-all",
-                displayImg === img ? "border-primary ring-1 ring-primary" : "border-gray-200 hover:border-primary"
-              )}
-            >
+            <button key={idx} onMouseEnter={() => setMainDisplayImage(img)} className={cn("relative w-16 h-16 flex-shrink-0 border rounded-md overflow-hidden bg-white transition-all", displayImg === img ? "border-primary ring-1 ring-primary" : "border-gray-200 hover:border-primary")}>
               <Image src={img} alt="thumbnail" fill className="object-contain p-1" />
             </button>
           ))}
@@ -167,18 +152,15 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         </div>
       </div>
 
-      {/* COLUMN 2: PRODUCT INFO */}
       <div className="lg:col-span-4 space-y-5">
         <div className="space-y-1">
-          <p className="text-blue-600 hover:underline cursor-pointer font-medium text-sm">Visit the {product.brandName} Store</p>
+          <p className="text-blue-600 hover:underline cursor-pointer font-medium text-sm">Visit the Store</p>
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900 leading-tight">{product.productName}</h1>
         </div>
-
         <div className="flex items-center gap-3">
           <div className="flex items-center text-orange-400"><Star size={18} fill="currentColor" /><span className="ml-1 font-bold text-gray-900">{product.averageRating || "0.0"}</span></div>
           <p className="text-sm text-blue-600 hover:text-orange-600 cursor-pointer">{product.totalReviews} ratings</p>
         </div>
-
         <Separator />
         <div className="space-y-6">
           {Object.entries(product.availableOptions || {}).map(([optionName, values]: any) => (
@@ -194,19 +176,18 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         </div>
       </div>
 
-      {/* COLUMN 3: BUY BOX */}
       <div className="lg:col-span-3">
         <div className="border border-gray-300 rounded-lg p-5 space-y-4 bg-white lg:sticky lg:top-24">
           <div className="text-3xl font-medium">${Math.floor(currentVariant.salePrice)}<span className="text-sm">{(currentVariant.salePrice % 1).toFixed(2).substring(2)}</span></div>
           <div className="space-y-3 pt-2">
-            <Button className="w-full h-10 rounded-full bg-yellow-400 hover:bg-yellow-500 text-black border-none shadow-sm font-normal">Add to Cart</Button>
-            <Button className="w-full h-10 rounded-full bg-orange-500 hover:bg-orange-600 text-white border-none shadow-sm font-normal">Buy Now</Button>
+            <Button className="w-full h-10 rounded-full bg-yellow-400 text-black">Add to Cart</Button>
+            <Button className="w-full h-10 rounded-full bg-orange-500 text-white font-normal">Buy Now</Button>
             <Button onClick={() => { if(!currentUser) return toast.error("Please login to chat"); setIsChatOpen(true); }} variant="outline" className="w-full h-10 rounded-full border-gray-300 hover:bg-gray-50 font-normal gap-2">
               <MessageCircle size={18} className="text-blue-600" />Chat with Seller
             </Button>
           </div>
           <div className="text-xs space-y-2 pt-4 border-t">
-            <div className="flex justify-between"><span className="text-gray-500">Sold by</span><span className="text-blue-600 hover:underline cursor-pointer font-medium">{product.seller.storeName}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Sold by</span><span className="text-blue-600 font-medium">{product.seller.storeName}</span></div>
           </div>
 
           {/* Trust Details */}
@@ -217,7 +198,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
             </div>
             <div className="flex justify-between">
                 <span className="text-gray-500">Sold by</span>
-                <span className="text-blue-600 hover:underline cursor-pointer font-medium">{product.seller.storeName}</span>
+                <span className="text-gray-900">{product.seller.storeName}</span>
             </div>
             <div className="flex justify-between">
                 <span className="text-gray-500">Returns</span>
@@ -237,17 +218,17 @@ export default function ProductDetailsClient({ product, currentUser }: { product
                 <p className="text-[10px] text-gray-500">Commerza protects your order from payment to delivery.</p>
              </div>
           </div>
+
+          
         </div>
       </div>
 
-      {/* --- FLOATING CHAT BOX --- */}
       {isChatOpen && (
         <div className="fixed bottom-4 right-4 w-80 h-[450px] bg-white border border-gray-300 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
             <div className="bg-[#232f3e] text-white p-3 flex justify-between items-center">
                 <div className="flex items-center gap-2"><Store size={16} /><span className="text-sm font-bold truncate">{product.seller.storeName}</span></div>
                 <button onClick={() => setIsChatOpen(false)}><X size={20} /></button>
             </div>
-
             <ScrollArea className="flex-1 p-4 bg-gray-50">
                 <div className="space-y-3">
                     <div className="bg-blue-50 border border-blue-100 p-2 rounded text-[11px] text-gray-600">Discussing: <span className="font-bold">{product.productName}</span></div>
@@ -268,7 +249,6 @@ export default function ProductDetailsClient({ product, currentUser }: { product
                     <div ref={scrollRef} />
                 </div>
             </ScrollArea>
-
            <div className="p-3 border-t bg-white space-y-2">
                 {pendingImage && (
                   <div className="relative w-16 h-16 rounded border overflow-hidden group">
