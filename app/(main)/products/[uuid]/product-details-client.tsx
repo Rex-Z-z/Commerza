@@ -61,7 +61,8 @@ export default function ProductDetailsClient({ product, currentUser }: { product
     if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  useEffect(() => {
+useEffect(() => {
+    // Only connect if the user is authenticated and chat is open
     if (isChatOpen && currentUser?.token) {
       const socket = new SockJS('http://localhost:8080/ws');
       const client = new Client({
@@ -72,16 +73,21 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         reconnectDelay: 5000,
         onConnect: () => {
           setIsConnected(true);
+          
+          // Subscribe to the private user queue
           client.subscribe('/user/queue/messages', (payload) => {
             const received = JSON.parse(payload.body);
+            
             setMessages((prev) => {
+              // Deduplicate messages based on content and timestamp
               const isDuplicate = prev.some(m => 
                 m.content === received.content && m.timestamp === received.timestamp
               );
               if (isDuplicate) return prev;
+
               return [...prev, { 
                 ...received, 
-                // Always compare in lowercase
+                // CRITICAL: Compare emails using lowercase to ensure they match exactly
                 isMe: received.senderId.toLowerCase() === currentUser.email.toLowerCase() 
               }];
             });
@@ -99,6 +105,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
   const handleSendMessage = () => {
     if (stompClient.current?.connected && (chatInput.trim() || pendingImage)) {
       const msgPayload = {
+        // Normalize emails here too
         senderId: currentUser.email.toLowerCase().trim(),
         recipientId: product.seller.email.toLowerCase().trim(),
         content: chatInput,
@@ -112,6 +119,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         body: JSON.stringify(msgPayload),
       });
 
+      // Clear input and wait for the server to echo the message back via the subscription
       setChatInput("");
       setPendingImage(null);
     }
@@ -219,7 +227,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
              </div>
           </div>
 
-          
+
         </div>
       </div>
 
