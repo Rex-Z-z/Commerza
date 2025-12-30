@@ -5,28 +5,19 @@ import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { 
-  Star, 
-  Truck, 
-  ShieldCheck, 
-  Store, 
-  ShoppingCart, 
-  Heart, 
-  Info, 
-  ChevronRight, 
-  MapPin, 
-  RotateCcw,
-  MessageCircle, // Added for Chat
-  Send,          // Added for Chat
-  X             // Added for Chat
+  Star, Truck, ShieldCheck, Store, ShoppingCart, Heart, 
+  MapPin, RotateCcw, MessageCircle, Send, X, Image as ImageIcon, Loader2 
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { Client } from '@stomp/stompjs' // Added for WebSocket
+import { Client } from '@stomp/stompjs'
+import SockJS from 'sockjs-client' // Required to fix the connection error
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Input } from '@/components/ui/input'
+import { toast } from 'sonner'
 
 export default function ProductDetailsClient({ product }: { product: any }) {
-  // --- KEEP YOUR EXISTING LOGIC ---
+  // --- EXISTING SELECTION LOGIC ---
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     Object.keys(product.availableOptions || {}).forEach(key => {
@@ -54,44 +45,92 @@ export default function ProductDetailsClient({ product }: { product: any }) {
     setMainDisplayImage(null); 
   };
 
-  // --- ADD CHAT LOGIC ---
+  // --- FIXED CHAT LOGIC ---
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [pendingImage, setPendingImage] = useState<string | null>(null);
+  
   const stompClient = useRef<Client | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll logic
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   useEffect(() => {
     if (isChatOpen) {
+      // Connect using SockJS as per your backend WebSocketConfig
+      const socket = new SockJS('http://localhost:8080/ws');
       const client = new Client({
-        brokerURL: 'ws://localhost:8080/ws', // Matches your Java backend
+        webSocketFactory: () => socket,
+        reconnectDelay: 5000,
         onConnect: () => {
+          setIsConnected(true);
+          // Subscribe to private queue
           client.subscribe('/user/queue/messages', (message) => {
             const received = JSON.parse(message.body);
-            setMessages((prev) => [...prev, received]);
+            // Mark received messages to distinguish from 'isMe'
+            setMessages((prev) => [...prev, { ...received, isMe: false }]);
           });
         },
+        onDisconnect: () => setIsConnected(false),
+        onStompError: () => setIsConnected(false),
       });
+
       client.activate();
       stompClient.current = client;
       return () => client.deactivate();
     }
   }, [isChatOpen]);
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      // Uses your StorageController to upload to Pinata
+      const res = await fetch('http://localhost:8080/api/v1/storage/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.payload) setPendingImage(data.payload);
+    } catch (error) {
+      toast.error("Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSendMessage = () => {
-    if (stompClient.current && chatInput.trim()) {
+    if (stompClient.current?.connected && (chatInput.trim() || pendingImage)) {
       const msgPayload = {
-        senderId: "currentUser@example.com", // Replace with actual logged-in user
+        senderId: "currentUser@example.com", // Replace with auth user email
         recipientId: product.seller.email,
         content: chatInput,
+        imageUrl: pendingImage, // Pinata URL
         productId: product.productUuid,
-        timestamp: new Date(),
+        type: "CHAT"
       };
+
       stompClient.current.publish({
         destination: '/app/chat.sendPrivateMessage',
         body: JSON.stringify(msgPayload),
       });
+
+      // Optimistic UI Update
       setMessages((prev) => [...prev, { ...msgPayload, isMe: true }]);
       setChatInput("");
+      setPendingImage(null);
     }
   };
 
@@ -316,17 +355,28 @@ export default function ProductDetailsClient({ product }: { product: any }) {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="p-3 border-t bg-white flex gap-2">
-                <Input 
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Type a message..." 
-                  className="h-9 text-xs focus-visible:ring-orange-500" 
-                />
-                <Button onClick={handleSendMessage} size="icon" className="h-9 w-9 bg-orange-500 hover:bg-orange-600">
-                    <Send size={16} />
-                </Button>
+           <div className="p-3 border-t bg-white space-y-2">
+                {pendingImage && (
+                  <div className="relative w-16 h-16 rounded border overflow-hidden group">
+                    <Image src={pendingImage} alt="pending" fill className="object-cover" />
+                    <button onClick={() => setPendingImage(null)} className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-full"><X size={10}/></button>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                    <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleImageUpload} />
+                    <Button variant="ghost" size="icon" disabled={!isConnected || uploading} onClick={() => fileInputRef.current?.click()} className="h-9 w-9">
+                        {uploading ? <Loader2 className="animate-spin" size={18}/> : <ImageIcon size={18} />}
+                    </Button>
+                    <Input 
+                      value={chatInput} 
+                      disabled={!isConnected}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                      placeholder={isConnected ? "Message..." : "Connecting..."} 
+                      className="h-9 text-xs" 
+                    />
+                    <Button onClick={handleSendMessage} disabled={!isConnected} size="icon" className="h-9 w-9 bg-orange-500 hover:bg-orange-600 shrink-0"><Send size={16} /></Button>
+                </div>
             </div>
         </div>
       )}
