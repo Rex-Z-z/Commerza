@@ -72,13 +72,12 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         reconnectDelay: 5000,
         onConnect: () => {
           setIsConnected(true);
-          
+          // Subscribe to private queue
           client.subscribe('/user/queue/messages', (payload) => {
             const received = JSON.parse(payload.body);
             
             setMessages((prev) => {
-              // Now we only add messages coming from the server.
-              // We compare IDs or content/timestamp if ID isn't available to be safe.
+              // Deduplicate based on content and timestamp
               const isDuplicate = prev.some(m => 
                 m.content === received.content && m.timestamp === received.timestamp
               );
@@ -86,7 +85,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
 
               return [...prev, { 
                 ...received, 
-                // Dynamically check if I am the sender
+                // Proper identification using lowercase comparison
                 isMe: received.senderId.toLowerCase() === currentUser.email.toLowerCase() 
               }];
             });
@@ -104,11 +103,9 @@ export default function ProductDetailsClient({ product, currentUser }: { product
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       const res = await fetch('http://localhost:8080/api/v1/storage/upload', {
         method: 'POST',
@@ -139,8 +136,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         body: JSON.stringify(msgPayload),
       });
 
-      // --- REMOVED setMessages OPTIMISTIC UPDATE HERE ---
-      // The message will appear once the server sends it back to us via the subscription.
+      // DO NOT setMessages here. Let the subscription handle the UI update.
       setChatInput("");
       setPendingImage(null);
     }
@@ -148,6 +144,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
+      
       {/* COLUMN 1: IMAGE GALLERY */}
       <div className="lg:col-span-5 flex flex-col md:flex-row gap-4 lg:sticky lg:top-24">
         <div className="flex md:flex-col gap-2 order-2 md:order-1 overflow-x-auto">
@@ -165,116 +162,53 @@ export default function ProductDetailsClient({ product, currentUser }: { product
             </button>
           ))}
         </div>
-
         <div className="flex-1 aspect-square relative overflow-hidden rounded-lg border border-gray-100 bg-white order-1 md:order-2">
-          <Image 
-            src={displayImg || '/placeholder.png'} 
-            alt={product.productName} 
-            fill 
-            className="object-contain p-6 transition-transform duration-300 hover:scale-110" 
-            priority 
-          />
+          <Image src={displayImg || '/placeholder.png'} alt={product.productName} fill className="object-contain p-6 transition-transform duration-300 hover:scale-110" priority />
         </div>
       </div>
 
       {/* COLUMN 2: PRODUCT INFO */}
       <div className="lg:col-span-4 space-y-5">
         <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <p className="text-blue-600 hover:underline cursor-pointer font-medium text-sm">
-              Visit the {product.brandName} Store
-            </p>
-            <div className="flex gap-2">
-                <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 border shadow-sm"><Heart size={16} /></Button>
-            </div>
-          </div>
-          <h1 className="text-xl md:text-2xl font-semibold text-gray-900 leading-tight">
-            {product.productName}
-          </h1>
+          <p className="text-blue-600 hover:underline cursor-pointer font-medium text-sm">Visit the {product.brandName} Store</p>
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-900 leading-tight">{product.productName}</h1>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center text-orange-400">
-            <Star size={18} fill="currentColor" />
-            <span className="ml-1 font-bold text-gray-900">{product.averageRating || "0.0"}</span>
-          </div>
-          <Separator orientation="vertical" className="h-4" />
-          <p className="text-sm text-blue-600 hover:text-orange-600 cursor-pointer">
-            {product.totalReviews} ratings
-          </p>
+          <div className="flex items-center text-orange-400"><Star size={18} fill="currentColor" /><span className="ml-1 font-bold text-gray-900">{product.averageRating || "0.0"}</span></div>
+          <p className="text-sm text-blue-600 hover:text-orange-600 cursor-pointer">{product.totalReviews} ratings</p>
         </div>
 
         <Separator />
-
         <div className="space-y-6">
           {Object.entries(product.availableOptions || {}).map(([optionName, values]: any) => (
             <div key={optionName}>
-              <h3 className="text-sm font-bold text-gray-900 mb-3">
-                {optionName}: <span className="font-normal text-gray-600">{selectedOptions[optionName]}</span>
-              </h3>
+              <h3 className="text-sm font-bold text-gray-900 mb-3">{optionName}: <span className="font-normal text-gray-600">{selectedOptions[optionName]}</span></h3>
               <div className="flex flex-wrap gap-2">
                 {values.map((val: string) => (
-                  <button
-                    key={val}
-                    onClick={() => handleOptionSelect(optionName, val)}
-                    className={cn(
-                      "px-4 py-1.5 text-sm border rounded shadow-sm transition-all",
-                      selectedOptions[optionName] === val 
-                        ? "border-orange-500 bg-orange-50 ring-1 ring-orange-500 text-gray-900" 
-                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                    )}
-                  >
-                    {val}
-                  </button>
+                  <button key={val} onClick={() => handleOptionSelect(optionName, val)} className={cn("px-4 py-1.5 text-sm border rounded shadow-sm transition-all", selectedOptions[optionName] === val ? "border-orange-500 bg-orange-50 ring-1 ring-orange-500 text-gray-900" : "border-gray-300 text-gray-700 hover:bg-gray-50")}>{val}</button>
                 ))}
               </div>
             </div>
           ))}
         </div>
-
-        <Separator />
-
-        <div className="space-y-3">
-          <h3 className="text-sm font-bold">About this item</h3>
-          <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
-            {product.description.split('.').slice(0, 4).map((sentence: string, i: number) => (
-                sentence.length > 5 && <li key={i}>{sentence.trim()}</li>
-            ))}
-          </ul>
-        </div>
       </div>
 
-      {/* COLUMN 3: THE BUY BOX */}
+      {/* COLUMN 3: BUY BOX */}
       <div className="lg:col-span-3">
         <div className="border border-gray-300 rounded-lg p-5 space-y-4 bg-white lg:sticky lg:top-24">
-          <div className="space-y-1">
-            <div className="flex items-baseline gap-1">
-               <span className="text-sm font-medium self-start mt-1">$</span>
-               <span className="text-3xl font-medium">{Math.floor(currentVariant.salePrice)}</span>
-               <span className="text-sm font-medium self-start mt-1">{(currentVariant.salePrice % 1).toFixed(2).substring(2)}</span>
-            </div>
-          </div>
-
+          <div className="text-3xl font-medium">${Math.floor(currentVariant.salePrice)}<span className="text-sm">{(currentVariant.salePrice % 1).toFixed(2).substring(2)}</span></div>
           <div className="space-y-3 pt-2">
-            <Button className="w-full h-10 rounded-full bg-yellow-400 hover:bg-yellow-500 text-black border-none shadow-sm font-normal">
-              Add to Cart
-            </Button>
-            <Button className="w-full h-10 rounded-full bg-orange-500 hover:bg-orange-600 text-white border-none shadow-sm font-normal">
-              Buy Now
-            </Button>
-
-            <Button 
-              onClick={() => {
-                  if(!currentUser) return toast.error("Please login to chat");
-                  setIsChatOpen(true);
-              }}
-              variant="outline" 
-              className="w-full h-10 rounded-full border-gray-300 hover:bg-gray-50 font-normal gap-2"
-            >
-              <MessageCircle size={18} className="text-blue-600" />
-              Chat with Seller
+            <Button className="w-full h-10 rounded-full bg-yellow-400 hover:bg-yellow-500 text-black border-none shadow-sm font-normal">Add to Cart</Button>
+            <Button className="w-full h-10 rounded-full bg-orange-500 hover:bg-orange-600 text-white border-none shadow-sm font-normal">Buy Now</Button>
+            <Button onClick={() => { if(!currentUser) return toast.error("Please login to chat"); setIsChatOpen(true); }} variant="outline" className="w-full h-10 rounded-full border-gray-300 hover:bg-gray-50 font-normal gap-2">
+              <MessageCircle size={18} className="text-blue-600" />Chat with Seller
             </Button>
           </div>
+          <div className="text-xs space-y-2 pt-4 border-t">
+            <div className="flex justify-between"><span className="text-gray-500">Sold by</span><span className="text-blue-600 hover:underline cursor-pointer font-medium">{product.seller.storeName}</span></div>
+          </div>
+
           {/* Trust Details */}
           <div className="text-xs space-y-2 pt-4 border-t">
             <div className="flex justify-between">
@@ -304,40 +238,29 @@ export default function ProductDetailsClient({ product, currentUser }: { product
              </div>
           </div>
         </div>
-        
       </div>
-
-      
 
       {/* --- FLOATING CHAT BOX --- */}
       {isChatOpen && (
         <div className="fixed bottom-4 right-4 w-80 h-[450px] bg-white border border-gray-300 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
             <div className="bg-[#232f3e] text-white p-3 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                    <Store size={16} />
-                    <span className="text-sm font-bold truncate">{product.seller.storeName}</span>
-                </div>
-                <button onClick={() => setIsChatOpen(false)} className="hover:text-gray-300 transition-colors">
-                    <X size={20} />
-                </button>
+                <div className="flex items-center gap-2"><Store size={16} /><span className="text-sm font-bold truncate">{product.seller.storeName}</span></div>
+                <button onClick={() => setIsChatOpen(false)}><X size={20} /></button>
             </div>
 
             <ScrollArea className="flex-1 p-4 bg-gray-50">
                 <div className="space-y-3">
-                    <div className="bg-blue-50 border border-blue-100 p-2 rounded text-[11px] text-gray-600">
-                        Discussing: <span className="font-bold">{product.productName}</span>
-                    </div>
+                    <div className="bg-blue-50 border border-blue-100 p-2 rounded text-[11px] text-gray-600">Discussing: <span className="font-bold">{product.productName}</span></div>
                     {messages.map((msg, i) => (
                         <div key={i} className={cn("flex flex-col", msg.isMe ? "items-end" : "items-start")}>
-                            <div className={cn(
-                                "max-w-[85%] px-3 py-2 rounded-lg text-sm shadow-sm mb-1",
-                                msg.isMe ? "bg-orange-500 text-white rounded-br-none" : "bg-white border text-black rounded-bl-none"
-                            )}>
-                                {msg.content}
-                            </div>
+                            {msg.content && (
+                                <div className={cn("max-w-[85%] px-3 py-2 rounded-lg text-sm shadow-sm mb-1", msg.isMe ? "bg-orange-500 text-white rounded-br-none" : "bg-white border text-black rounded-bl-none")}>
+                                    {msg.content}
+                                </div>
+                            )}
                             {msg.imageUrl && (
                                 <div className="relative w-32 h-32 rounded mb-2 overflow-hidden border">
-                                    <Image src={msg.imageUrl} alt="chat-img" fill className="object-cover" />
+                                    <Image src={msg.imageUrl} alt="chat-img" fill className="object-cover" unoptimized />
                                 </div>
                             )}
                         </div>
@@ -349,7 +272,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
            <div className="p-3 border-t bg-white space-y-2">
                 {pendingImage && (
                   <div className="relative w-16 h-16 rounded border overflow-hidden group">
-                    <Image src={pendingImage} alt="pending" fill className="object-cover" />
+                    <Image src={pendingImage} alt="pending" fill className="object-cover" unoptimized />
                     <button onClick={() => setPendingImage(null)} className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-full"><X size={10}/></button>
                   </div>
                 )}
@@ -358,14 +281,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
                     <Button variant="ghost" size="icon" disabled={!isConnected || uploading} onClick={() => fileInputRef.current?.click()} className="h-9 w-9">
                         {uploading ? <Loader2 className="animate-spin" size={18}/> : <ImageIcon size={18} />}
                     </Button>
-                    <Input 
-                      value={chatInput} 
-                      disabled={!isConnected}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                      placeholder={isConnected ? "Message..." : "Connecting..."} 
-                      className="h-9 text-xs" 
-                    />
+                    <Input value={chatInput} disabled={!isConnected} onChange={(e) => setChatInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} placeholder={isConnected ? "Message..." : "Connecting..."} className="h-9 text-xs" />
                     <Button onClick={handleSendMessage} disabled={!isConnected} size="icon" className="h-9 w-9 bg-orange-500 hover:bg-orange-600 shrink-0"><Send size={16} /></Button>
                 </div>
             </div>
