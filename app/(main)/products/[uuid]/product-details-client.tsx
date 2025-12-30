@@ -16,9 +16,8 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 
-// Ensure you pass the authenticated 'currentUser' as a prop from the parent page
 export default function ProductDetailsClient({ product, currentUser }: { product: any, currentUser?: any }) {
-  // --- EXISTING SELECTION LOGIC ---
+  // --- SELECTION LOGIC ---
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {};
     Object.keys(product.availableOptions || {}).forEach(key => {
@@ -58,38 +57,42 @@ export default function ProductDetailsClient({ product, currentUser }: { product
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll logic
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   useEffect(() => {
     if (isChatOpen && currentUser?.token) {
-      // Connect using SockJS as per your backend WebSocketConfig
       const socket = new SockJS('http://localhost:8080/ws');
       const client = new Client({
         webSocketFactory: () => socket,
-        // MANDATORY: Pass the JWT token so the backend Interceptor can authenticate the session
         connectHeaders: {
-          Authorization: `Bearer ${currentUser.token}`
+          Authorization: `Bearer ${currentUser.token}` 
         },
         reconnectDelay: 5000,
         onConnect: () => {
           setIsConnected(true);
-          // Subscribe to private queue /user/queue/messages
-          client.subscribe('/user/queue/messages', (message) => {
-            const received = JSON.parse(message.body);
-            // Deduplicate: If it's an incoming message from the other person
-            if (received.senderId !== currentUser.email) {
-                setMessages((prev) => [...prev, { ...received, isMe: false }]);
-            }
+          
+          client.subscribe('/user/queue/messages', (payload) => {
+            const received = JSON.parse(payload.body);
+            
+            setMessages((prev) => {
+              // Now we only add messages coming from the server.
+              // We compare IDs or content/timestamp if ID isn't available to be safe.
+              const isDuplicate = prev.some(m => 
+                m.content === received.content && m.timestamp === received.timestamp
+              );
+              if (isDuplicate) return prev;
+
+              return [...prev, { 
+                ...received, 
+                // Dynamically check if I am the sender
+                isMe: received.senderId.toLowerCase() === currentUser.email.toLowerCase() 
+              }];
+            });
           });
         },
         onDisconnect: () => setIsConnected(false),
-        onStompError: (frame) => {
-            console.error('STOMP Error:', frame);
-            setIsConnected(false);
-        },
       });
 
       client.activate();
@@ -123,7 +126,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
   const handleSendMessage = () => {
     if (stompClient.current?.connected && (chatInput.trim() || pendingImage)) {
       const msgPayload = {
-        senderId: currentUser.email, // Dynamic Email
+        senderId: currentUser.email,
         recipientId: product.seller.email,
         content: chatInput,
         imageUrl: pendingImage, 
@@ -136,8 +139,8 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         body: JSON.stringify(msgPayload),
       });
 
-      // Optimistic UI Update: Instantly show your own message
-      setMessages((prev) => [...prev, { ...msgPayload, isMe: true }]);
+      // --- REMOVED setMessages OPTIMISTIC UPDATE HERE ---
+      // The message will appear once the server sends it back to us via the subscription.
       setChatInput("");
       setPendingImage(null);
     }
@@ -145,8 +148,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
-      
-      {/* COLUMN 1: IMAGE GALLERY (col-span 5) */}
+      {/* COLUMN 1: IMAGE GALLERY */}
       <div className="lg:col-span-5 flex flex-col md:flex-row gap-4 lg:sticky lg:top-24">
         <div className="flex md:flex-col gap-2 order-2 md:order-1 overflow-x-auto">
           {galleryImages.map((img: string, idx: number) => (
@@ -175,7 +177,7 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         </div>
       </div>
 
-      {/* COLUMN 2: PRODUCT INFO (col-span 4) */}
+      {/* COLUMN 2: PRODUCT INFO */}
       <div className="lg:col-span-4 space-y-5">
         <div className="space-y-1">
           <div className="flex items-center justify-between">
@@ -191,7 +193,6 @@ export default function ProductDetailsClient({ product, currentUser }: { product
           </h1>
         </div>
 
-        {/* Rating Section */}
         <div className="flex items-center gap-3">
           <div className="flex items-center text-orange-400">
             <Star size={18} fill="currentColor" />
@@ -205,7 +206,6 @@ export default function ProductDetailsClient({ product, currentUser }: { product
 
         <Separator />
 
-        {/* Variant Selectors */}
         <div className="space-y-6">
           {Object.entries(product.availableOptions || {}).map(([optionName, values]: any) => (
             <div key={optionName}>
@@ -234,7 +234,6 @@ export default function ProductDetailsClient({ product, currentUser }: { product
 
         <Separator />
 
-        {/* Features / Short Description */}
         <div className="space-y-3">
           <h3 className="text-sm font-bold">About this item</h3>
           <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
@@ -245,41 +244,17 @@ export default function ProductDetailsClient({ product, currentUser }: { product
         </div>
       </div>
 
-      {/* COLUMN 3: THE BUY BOX (col-span 3) */}
+      {/* COLUMN 3: THE BUY BOX */}
       <div className="lg:col-span-3">
         <div className="border border-gray-300 rounded-lg p-5 space-y-4 bg-white lg:sticky lg:top-24">
-          
           <div className="space-y-1">
             <div className="flex items-baseline gap-1">
                <span className="text-sm font-medium self-start mt-1">$</span>
                <span className="text-3xl font-medium">{Math.floor(currentVariant.salePrice)}</span>
                <span className="text-sm font-medium self-start mt-1">{(currentVariant.salePrice % 1).toFixed(2).substring(2)}</span>
             </div>
-            {currentVariant.discountPercentage > 0 && (
-              <p className="text-sm text-gray-500">
-                List Price: <span className="line-through">${currentVariant.price}</span>
-              </p>
-            )}
           </div>
 
-          <div className="space-y-3 pt-2">
-            <p className="text-sm">
-                Delivery <span className="font-bold">Wednesday, Jan 1</span>
-            </p>
-            <div className="flex items-center gap-2 text-blue-600 text-xs font-medium">
-               <MapPin size={14} /> 
-               <span className="hover:underline cursor-pointer">Deliver to Cambodia</span>
-            </div>
-          </div>
-
-          <h3 className={cn(
-            "text-lg font-bold",
-            currentVariant.stockQuantity > 0 ? "text-green-700" : "text-red-600"
-          )}>
-            {currentVariant.stockQuantity > 0 ? "In Stock" : "Out of Stock"}
-          </h3>
-
-          {/* Action Buttons */}
           <div className="space-y-3 pt-2">
             <Button className="w-full h-10 rounded-full bg-yellow-400 hover:bg-yellow-500 text-black border-none shadow-sm font-normal">
               Add to Cart
@@ -288,7 +263,6 @@ export default function ProductDetailsClient({ product, currentUser }: { product
               Buy Now
             </Button>
 
-            {/* NEW CHAT BUTTON ADDED TO BUY BOX */}
             <Button 
               onClick={() => {
                   if(!currentUser) return toast.error("Please login to chat");
@@ -301,7 +275,6 @@ export default function ProductDetailsClient({ product, currentUser }: { product
               Chat with Seller
             </Button>
           </div>
-
           {/* Trust Details */}
           <div className="text-xs space-y-2 pt-4 border-t">
             <div className="flex justify-between">
@@ -331,12 +304,14 @@ export default function ProductDetailsClient({ product, currentUser }: { product
              </div>
           </div>
         </div>
+        
       </div>
 
-      {/* --- FLOATING CHAT BOX (Absolute position) --- */}
+      
+
+      {/* --- FLOATING CHAT BOX --- */}
       {isChatOpen && (
         <div className="fixed bottom-4 right-4 w-80 h-[450px] bg-white border border-gray-300 rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5">
-            {/* Header */}
             <div className="bg-[#232f3e] text-white p-3 flex justify-between items-center">
                 <div className="flex items-center gap-2">
                     <Store size={16} />
@@ -347,7 +322,6 @@ export default function ProductDetailsClient({ product, currentUser }: { product
                 </button>
             </div>
 
-            {/* Message Area */}
             <ScrollArea className="flex-1 p-4 bg-gray-50">
                 <div className="space-y-3">
                     <div className="bg-blue-50 border border-blue-100 p-2 rounded text-[11px] text-gray-600">
@@ -372,7 +346,6 @@ export default function ProductDetailsClient({ product, currentUser }: { product
                 </div>
             </ScrollArea>
 
-            {/* Input Area */}
            <div className="p-3 border-t bg-white space-y-2">
                 {pendingImage && (
                   <div className="relative w-16 h-16 rounded border overflow-hidden group">
